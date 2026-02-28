@@ -105,7 +105,7 @@ docs/             Architektura, wkład, dostęp do katalogu w przeglądarce
 
 ```bash
 git clone <url-repo>
-cd hack-athon
+cd wizard404
 ```
 
 ### 2. Backend
