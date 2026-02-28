@@ -49,10 +49,10 @@ export function Explore() {
           Volver al menú
         </Link>
       </header>
-      <h1 className="text-lg text-[var(--pixel-accent)] mb-4">Explore documents</h1>
+      <h1 className="pixel-page-title mb-4">Explore documents</h1>
       {error && <p className="text-red-600 text-xs mb-2">{error}</p>}
       {loading ? (
-        <p className="text-[var(--pixel-muted)] text-xs">Cargando...</p>
+        <p className="text-[var(--pixel-text-muted)] text-xs">Cargando...</p>
       ) : (
         <>
           <Table
@@ -76,7 +76,7 @@ export function Explore() {
                 )
               if (key === 'size_bytes') return value?.toLocaleString() ?? ''
               if (key === 'snippet') return <span className="max-w-[200px] truncate block">{value || '-'}</span>
-              return key === 'mime_type' ? <span className="text-[var(--pixel-muted)]">{value}</span> : value
+              return key === 'mime_type' ? <span className="text-[var(--pixel-text-muted)]">{value}</span> : value
             }}
           />
           <div className="flex gap-2 mt-4">

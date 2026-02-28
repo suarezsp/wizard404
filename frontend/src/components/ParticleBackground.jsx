@@ -38,7 +38,7 @@ export function ParticleBackground() {
       {particles.map((p, i) => (
         <span
           key={i}
-          className="particle-asterisk absolute text-[var(--pixel-muted)] font-pixel"
+          className="particle-asterisk absolute text-[var(--pixel-text-muted)] font-pixel"
           style={{
             left: `${p.left}%`,
             top: `${p.top}%`,

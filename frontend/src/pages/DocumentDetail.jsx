@@ -42,7 +42,7 @@ export function DocumentDetail() {
   }, [token, id])
 
   if (error) return <p className="p-6 text-red-500">{error}</p>
-  if (!doc) return <p className="p-6 text-[var(--pixel-muted)]">Cargando...</p>
+  if (!doc) return <p className="p-6 text-[var(--pixel-text-muted)]">Cargando...</p>
 
   return (
     <div className="min-h-screen p-6">
@@ -58,32 +58,32 @@ export function DocumentDetail() {
         )}
       </header>
       <Card className="p-6">
-        <h1 className="text-[var(--pixel-accent)] text-sm mb-4 font-pixel">
+        <h1 className="pixel-page-title mb-4">
           {doc.name}
         </h1>
-        <div className="grid grid-cols-2 gap-4 text-xs mb-6">
+        <div className="grid grid-cols-2 gap-4 text-xs mb-6 text-[var(--pixel-text-on-dark)]">
           <div>
-            <span className="text-[var(--pixel-muted)]">Tipo:</span> {doc.mime_type}
+            <span className="text-[var(--pixel-text-muted)]">Tipo:</span> {doc.mime_type}
           </div>
           <div>
-            <span className="text-[var(--pixel-muted)]">Tamaño:</span>{' '}
+            <span className="text-[var(--pixel-text-muted)]">Tamaño:</span>{' '}
             {doc.size_bytes?.toLocaleString()} bytes
           </div>
           <div className="col-span-2">
-            <span className="text-[var(--pixel-muted)]">Ruta:</span> {doc.path}
+            <span className="text-[var(--pixel-text-muted)]">Ruta:</span> {doc.path}
           </div>
         </div>
         {summary && (
           <div className="border-2 border-[var(--pixel-border)] p-4 mb-6">
-            <h2 className="text-[var(--pixel-accent)] text-xs mb-2">SUMMARY</h2>
-            <p className="text-xs text-[var(--pixel-text)] whitespace-pre-wrap">
+            <h2 className="pixel-section-title mb-2">SUMMARY</h2>
+            <p className="text-xs text-[var(--pixel-text-on-dark)] whitespace-pre-wrap">
               {summary}
             </p>
           </div>
         )}
         <div className="border-2 border-[var(--pixel-border)] p-4">
-          <h2 className="text-[var(--pixel-accent)] text-xs mb-2">CONTENIDO</h2>
-          <pre className="text-xs text-[var(--pixel-text)] whitespace-pre-wrap font-mono overflow-x-auto max-h-96 overflow-y-auto">
+          <h2 className="pixel-section-title mb-2">CONTENIDO</h2>
+          <pre className="text-xs text-[var(--pixel-text-on-dark)] whitespace-pre-wrap font-mono overflow-x-auto max-h-96 overflow-y-auto">
             {doc.content_preview || '(sin contenido)'}
           </pre>
         </div>

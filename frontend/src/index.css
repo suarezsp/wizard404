@@ -3,17 +3,36 @@
 /* Tailwind v4: unico import (base + components + utilities) */
 @import 'tailwindcss';
 
-/* Paleta en sintonia con bg.png (paisaje pixel art): verdes, azules cielo, marrones y grises.
-   Legible sobre el fondo y coherente con la estetica del paisaje. */
+/* Paleta 16-bit RPG.
+    */
 :root {
-  --pixel-bg: #1a3c2e;
-  --pixel-border: #5a4a3a;
-  --pixel-accent: #2e7d32;
-  --pixel-text: #0d1b12;
+  /* Fondos */
+  --pixel-bg: #0f1419;
+  --pixel-bg-2: #1e2329;
+  --pixel-panel: #1a1f2e;
+  --pixel-panel-light: #e8e4d8;
+  /* Bordes */
+  --pixel-border: #4a4035;
+  --pixel-border-title: #8b7355;
+  /* Acentos y títulos */
+  --pixel-accent: #4ade80;
+  --pixel-accent-gold: #d4a84b;
+  /* Texto */
+  --pixel-text: #1a1510;
+  --pixel-text-muted: #6b6358;
+  --pixel-text-on-dark: #e4e0d8;
+  --pixel-text-on-light: #2a2520;
+  /* Cajas de título y subtítulo */
+  --pixel-title-bg: #1e2433;
+  --pixel-title-border: #8b7355;
+  --pixel-subtitle-bg: rgba(232, 228, 216, 0.92);
+  /* Diálogo y resultados (compat) */
+  --pixel-dialogue-bg: var(--pixel-panel-light);
+  --pixel-results-bg: var(--pixel-panel);
+  --pixel-results-text: var(--pixel-text-on-dark);
+  --pixel-muted: var(--pixel-text-muted);
   --pixel-text-in: #c8e6c9;
-  --pixel-muted: #6b7c6b;
-  --pixel-dialogue-bg: rgba(234, 230, 220, 0.95);
-  /* Ajustar tamano del mago y del dialogo mediante estas variables */
+  /* Mago */
   --mage-size: 328px;
   --mage-dialogue-width: 300px;
   --mage-dialogue-font-size: 10px;
@@ -22,9 +41,6 @@
   --mage-gap: 8px;
   --mage-zone-width: 320px;
   --mage-zone-height: 220px;
-  /* Resultados (Search, Scan): texto claro sobre fondo oscuro */
-  --pixel-results-bg: #1a1a2e;
-  --pixel-results-text: #e4e0e8;
 }
 
 @media (max-width: 1024px) {
@@ -48,7 +64,7 @@
 }
 
 .results-block th {
-  color: var(--pixel-accent);
+  color: var(--pixel-accent-gold);
 }
 .results-block td,
 .results-block p,
@@ -56,16 +72,61 @@
   color: var(--pixel-results-text);
 }
 .results-block h2 {
-  color: var(--pixel-accent);
+  color: var(--pixel-accent-gold);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   background-color: var(--pixel-bg);
-  color: var(--pixel-text);
+  color: var(--pixel-text-on-dark);
   font-family: 'Press Start 2P', monospace;
   overflow-y: auto;
+}
+
+/* Título principal de página: caja con borde y fondo (estilo menú RPG) */
+.pixel-page-title {
+  display: inline-block;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  padding: 0.5rem 0.75rem;
+  border: 4px solid var(--pixel-title-border);
+  background-color: var(--pixel-title-bg);
+  color: var(--pixel-accent-gold);
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .pixel-page-title {
+    font-size: 1rem;
+    padding: 0.6rem 1rem;
+  }
+}
+
+/* Título de sección (h2): fondo visible y borde 2px */
+.pixel-section-title {
+  display: inline-block;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.625rem;
+  line-height: 1.5;
+  padding: 0.35rem 0.6rem;
+  border: 2px solid var(--pixel-border);
+  background-color: var(--pixel-subtitle-bg);
+  color: var(--pixel-text-on-light);
+  margin-bottom: 0.5rem;
+}
+
+/* Subtítulo o descripción: fondo para legibilidad */
+.pixel-subtitle {
+  display: inline-block;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  line-height: 1.6;
+  padding: 0.25rem 0.5rem;
+  border: 2px solid var(--pixel-border);
+  background-color: var(--pixel-subtitle-bg);
+  color: var(--pixel-text-muted);
 }
 /* Fondo real es la capa BackgroundImage (bg.png con parallax); este color es fallback y debajo de la imagen */
 /* Scroll solo cuando el contenido supera la ventana; no forzar barra fija */
@@ -116,14 +177,27 @@ html {
   animation: particleFade 4s ease-in-out infinite;
 }
 
-/* Tarjetas Home: hover con elevacion discreta */
+/* Tarjetas Home: titulo izquierda, descripcion derecha; hover con elevacion y sombra 3d en titulo */
+.card-menu .card-menu-title {
+  margin-bottom: 0;
+  font-size: 0.75rem;
+  transition: box-shadow 0.2s ease;
+}
+@media (min-width: 768px) {
+  .card-menu .card-menu-title {
+    font-size: 0.875rem;
+  }
+}
 .card-menu {
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .card-menu:hover {
   transform: translateY(-2px);
-  border-color: var(--pixel-accent);
+  border-color: var(--pixel-title-border);
   box-shadow: 0 4px 0 var(--pixel-border);
+}
+.card-menu:hover .card-menu-title {
+  box-shadow: 0 3px 0 var(--pixel-border);
 }
 
 /* Filas de tabla: aparicion escalonada opcional */
@@ -143,17 +217,19 @@ html {
   100% { transform: translateX(400%); }
 }
 
-/* Volver al menú: hover fondo verde, texto claro, sin borde inferior */
+/* Volver al menú: estilo botón pixel (borde + fondo) */
 .link-back-menu {
   font-size: 0.75rem;
+  font-family: 'Press Start 2P', monospace;
+  border: 2px solid var(--pixel-title-border);
+  background-color: var(--pixel-panel);
   color: var(--pixel-accent);
   text-decoration: none;
   padding: 0.25rem 0.5rem;
-  border-bottom: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 .link-back-menu:hover {
   background-color: var(--pixel-accent);
-  color: var(--pixel-dialogue-bg);
+  color: var(--pixel-bg);
   text-decoration: none;
-  border-bottom: none;
 }

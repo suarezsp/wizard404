@@ -65,9 +65,9 @@ export function Dashboard() {
   return (
     <div className="min-h-screen p-6">
       <header className="flex justify-between items-center mb-8 border-b-2 border-[var(--pixel-border)] pb-4">
-        <h1 className="text-[var(--pixel-accent)] text-lg font-pixel">WIZARD404</h1>
+        <h1 className="pixel-page-title">WIZARD404</h1>
         <div className="flex items-center gap-4">
-          <span className="text-xs text-[var(--pixel-muted)]">{user?.name}</span>
+          <span className="pixel-subtitle text-xs">{user?.name}</span>
           <Button onClick={logout} variant="secondary" className="px-3 py-1">
             SALIR
           </Button>
@@ -103,7 +103,7 @@ export function Dashboard() {
         <p className="text-red-500 text-xs mb-2">{searchError}</p>
       )}
       {loading ? (
-        <p className="text-[var(--pixel-muted)] text-xs">Cargando...</p>
+        <p className="text-[var(--pixel-text-muted)] text-xs">Cargando...</p>
       ) : (
         <Table
           columns={[
@@ -125,7 +125,7 @@ export function Dashboard() {
               )
             if (key === 'size_bytes') return value?.toLocaleString() ?? ''
             if (key === 'snippet') return <span className="max-w-[200px] truncate block">{value || '-'}</span>
-            return key === 'mime_type' ? <span className="text-[var(--pixel-muted)]">{value}</span> : value
+            return key === 'mime_type' ? <span className="text-[var(--pixel-text-muted)]">{value}</span> : value
           }}
         />
       )}

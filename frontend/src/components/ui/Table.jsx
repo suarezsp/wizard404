@@ -4,14 +4,14 @@
  */
 export function Table({ columns, data, emptyMessage = 'Sin datos.', renderCell, staggerRows, onRowClick }) {
   return (
-    <div className={`border-2 border-[var(--pixel-border)] overflow-x-auto ${staggerRows ? 'table-rows-stagger' : ''}`}>
+    <div className={`border-2 border-[var(--pixel-border)] rounded-none overflow-x-auto ${staggerRows ? 'table-rows-stagger' : ''}`}>
       <table className="w-full text-xs">
         <thead>
-          <tr className="border-b-2 border-[var(--pixel-border)] bg-[#1a1a2e]">
+          <tr className="border-b-2 border-[var(--pixel-border)] bg-[var(--pixel-panel)]">
             {columns.map((col) => (
               <th
                 key={col.key}
-                className="text-left p-3 text-[var(--pixel-accent)]"
+                className="text-left p-3 text-[var(--pixel-accent-gold)]"
                 style={col.align === 'right' ? { textAlign: 'right' } : undefined}
               >
                 {col.label}
@@ -27,12 +27,12 @@ export function Table({ columns, data, emptyMessage = 'Sin datos.', renderCell, 
               tabIndex={onRowClick ? 0 : undefined}
               onClick={onRowClick ? () => onRowClick(row, i) : undefined}
               onKeyDown={onRowClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onRowClick(row, i) } } : undefined}
-              className={`border-b border-[var(--pixel-border)] hover:bg-[#1a1a2e] ${onRowClick ? 'cursor-pointer' : ''}`}
+              className={`border-b border-[var(--pixel-border)] text-[var(--pixel-text-on-dark)] hover:bg-[var(--pixel-title-bg)] ${onRowClick ? 'cursor-pointer' : ''}`}
             >
               {columns.map((col) => (
                 <td
                   key={col.key}
-                  className="p-3 text-[var(--pixel-text)]"
+                  className="p-3"
                   style={col.align === 'right' ? { textAlign: 'right' } : undefined}
                 >
                   {renderCell
@@ -45,7 +45,7 @@ export function Table({ columns, data, emptyMessage = 'Sin datos.', renderCell, 
         </tbody>
       </table>
       {data.length === 0 && (
-        <p className="p-6 text-center text-[var(--pixel-muted)]">
+        <p className="p-6 text-center text-[var(--pixel-text-muted)]">
           {emptyMessage}
         </p>
       )}

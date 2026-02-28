@@ -29,25 +29,25 @@ export function Home() {
   return (
     <div className="min-h-screen p-6">
       <header className="flex justify-between items-center mb-4 md:mb-8 border-b-2 border-[var(--pixel-border)] pb-4">
-        <h1 className="text-[var(--pixel-accent)] text-lg font-pixel">WIZARD404</h1>
+        <h1 className="pixel-page-title">WIZARD404</h1>
         <div className="flex items-center gap-4">
-          <span className="text-xs text-[var(--pixel-muted)]">{user?.name}</span>
+          <span className="pixel-subtitle text-xs">{user?.name}</span>
           <Button onClick={logout} variant="secondary" className="px-3 py-1">
             SALIR
           </Button>
         </div>
       </header>
 
-      <div className="flex flex-col gap-2 md:gap-4 max-w-2xl ml-0 md:ml-[10%] mr-auto">
+      <div className="flex flex-col gap-2 md:gap-4 max-w-4xl ml-0 md:ml-[10%] mr-auto w-full">
         {MENU_OPTIONS.map(({ to, title, subtitle }) => (
           <Link key={to} to={to} className="block w-full">
             <Card
               variant="light"
               borderWidth={4}
-              className="card-menu p-2 md:p-4 cursor-pointer hover:border-[var(--pixel-accent)] w-full min-h-0"
+              className="card-menu p-3 md:p-4 cursor-pointer w-full min-h-0 flex items-center justify-between gap-4"
             >
-              <h2 className="text-xs md:text-sm text-[var(--pixel-accent)] md:mb-2">{title}</h2>
-              <p className="hidden md:block text-xs text-[var(--pixel-muted)] leading-relaxed">{subtitle}</p>
+              <h2 className="card-menu-title pixel-section-title flex-shrink-0">{title}</h2>
+              <p className="hidden md:block text-right flex-1 min-w-0"><span className="pixel-subtitle text-[0.5rem]">{subtitle}</span></p>
             </Card>
           </Link>
         ))}

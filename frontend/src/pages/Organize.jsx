@@ -21,9 +21,9 @@ export function Organize() {
           Volver al menú
         </Link>
       </header>
-      <h1 className="text-lg text-[var(--pixel-accent)] mb-4">Organize files</h1>
+      <h1 className="pixel-page-title mb-4">Organize files</h1>
       <Card className="p-4 max-w-xl">
-        <p className="text-xs text-[var(--pixel-muted)] mb-2">
+        <p className="text-xs text-[var(--pixel-text-muted)] mb-2">
           Mover archivos a carpetas por tipo, fecha o tamaño esta disponible en la CLI.
         </p>
         <p className="text-xs">

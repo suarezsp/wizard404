@@ -9,18 +9,19 @@ export function Input({
   className = '',
   ...props
 }) {
-  const bg = variant === 'light' ? 'var(--pixel-bg)' : '#000'
+  const bg = variant === 'light' ? 'var(--pixel-panel-light)' : 'var(--pixel-panel)'
+  const textColor = variant === 'light' ? 'var(--pixel-text-on-light)' : 'var(--pixel-text-on-dark)'
   const inputClass =
-    'w-full px-4 py-2 border-2 border-[var(--pixel-border)] text-sm font-pixel text-[var(--pixel-text)] ' +
+    'w-full px-4 py-2 border-2 border-[var(--pixel-border)] rounded-none text-sm font-pixel ' +
     className
   return (
     <div>
       {label && (
-        <label className="block text-xs mb-2 text-[var(--pixel-muted)]">
+        <label className="block text-xs mb-2 text-[var(--pixel-text-muted)]">
           {label}
         </label>
       )}
-      <input type={type} className={inputClass} style={{ backgroundColor: bg }} {...props} />
+      <input type={type} className={inputClass} style={{ backgroundColor: bg, color: textColor }} {...props} />
     </div>
   )
 }

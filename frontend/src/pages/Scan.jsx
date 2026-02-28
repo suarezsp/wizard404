@@ -224,13 +224,13 @@ export function Scan() {
           Volver al menú
         </Link>
       </header>
-      <h1 className="text-lg text-[var(--pixel-accent)] mb-4">Scan directory</h1>
-      <p className="text-xs text-[var(--pixel-muted)] mb-4">
+      <h1 className="pixel-page-title mb-4">Scan directory</h1>
+      <p className="text-xs text-[var(--pixel-text-muted)] mb-4">
         {hasDirectoryPicker
           ? 'Elegir carpeta usa tu ordenador (Chrome/Edge). Ruta en el servidor usa la máquina donde corre el backend.'
           : 'Ruta en el servidor (ej: /ruta/local). El backend escanea ese directorio.'}
       </p>
-      <p className="text-xs text-[var(--pixel-text)] mb-2">
+      <p className="text-xs text-[var(--pixel-text-on-dark)] mb-2">
         Para carpetas con muchos archivos o rutas protegidas, usa la <strong>ruta en el servidor</strong>. Si el navegador bloquea la carpeta, elige otra o usa la ruta del servidor.
       </p>
       {!hasDirectoryPicker && (
@@ -266,11 +266,11 @@ export function Scan() {
       )}
       {stats && !selectedExtension && !detailFile && (
         <Card className="results-block p-4 mt-4 animate-view-in">
-          <h2 className="text-sm text-[var(--pixel-accent)] mb-2">Resultados</h2>
-          <p className="text-xs text-[var(--pixel-text)] mb-2">Archivos: {stats.total_files} — Tamaño total: {(stats.total_size / 1024).toFixed(1)} KB</p>
+          <h2 className="pixel-section-title mb-2">Resultados</h2>
+          <p className="text-xs text-[var(--pixel-text-on-dark)] mb-2">Archivos: {stats.total_files} — Tamaño total: {(stats.total_size / 1024).toFixed(1)} KB</p>
           {Object.keys(stats.by_extension || {}).length > 0 && (
             <>
-              <p className="text-xs text-[var(--pixel-muted)] mt-2">Por extensión (clic para ver lista):</p>
+              <p className="text-xs text-[var(--pixel-text-muted)] mt-2">Por extensión (clic para ver lista):</p>
               <ul className="text-xs mt-1 space-y-0.5">
                 {Object.entries(stats.by_extension)
                   .sort((a, b) => b[1] - a[1])
@@ -302,9 +302,9 @@ export function Scan() {
               ← Volver a resultados
             </button>
           </div>
-          <h2 className="text-sm text-[var(--pixel-accent)] mb-2">Archivos {selectedExtension}</h2>
+          <h2 className="pixel-section-title mb-2">Archivos {selectedExtension}</h2>
           {loadingFiles ? (
-            <p className="text-xs text-[var(--pixel-muted)]">Cargando...</p>
+            <p className="text-xs text-[var(--pixel-text-muted)]">Cargando...</p>
           ) : (
             <div className="max-h-[70vh] overflow-y-auto">
               <Table
@@ -337,21 +337,21 @@ export function Scan() {
               Volver a la tabla
             </button>
           </div>
-          <h2 className="text-sm text-[var(--pixel-accent)] mb-2">Detalle</h2>
-          <dl className="text-xs text-[var(--pixel-text)] space-y-1">
-            <dt className="text-[var(--pixel-muted)]">Nombre</dt>
+          <h2 className="pixel-section-title mb-2">Detalle</h2>
+          <dl className="text-xs text-[var(--pixel-text-on-dark)] space-y-1">
+            <dt className="text-[var(--pixel-text-muted)]">Nombre</dt>
             <dd className="mb-2 text-[var(--pixel-text-in)]">{detailFile.name}</dd>
             {detailFile.path && (
               <>
-                <dt className="text-[var(--pixel-muted)]">Ruta</dt>
+                <dt className="text-[var(--pixel-text-muted)]">Ruta</dt>
                 <dd className="mb-2 break-all text-[var(--pixel-text-in)]">{detailFile.path}</dd>
               </>
             )}
-            <dt className="text-[var(--pixel-muted)]">Tamaño</dt>
+            <dt className="text-[var(--pixel-text-muted)]">Tamaño</dt>
             <dd className="mb-2">{formatSize(detailFile.size ?? detailFile.size_bytes)}</dd>
             {detailFile.mime_type && (
               <>
-                <dt className="text-[var(--pixel-muted)]">Tipo</dt>
+                <dt className="text-[var(--pixel-text-muted)]">Tipo</dt>
                 <dd>{detailFile.mime_type}</dd>
               </>
             )}

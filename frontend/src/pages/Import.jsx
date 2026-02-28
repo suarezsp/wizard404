@@ -120,11 +120,11 @@ export function Import() {
     <AnimatedView className="min-h-screen p-6">
       <header className="flex justify-between items-center mb-6 border-b-2 border-[var(--pixel-border)] pb-4">
         <Link to="/" className="link-back-menu">
-          ← Volver al menú
+          Volver al menú
         </Link>
       </header>
-      <h1 className="text-lg text-[var(--pixel-accent)] mb-4">Import documents</h1>
-      <p className="text-xs text-[var(--pixel-muted)] mb-4">
+      <h1 className="pixel-page-title mb-4">Import documents</h1>
+      <p className="text-xs text-[var(--pixel-text-muted)] mb-4">
         {hasDirectoryPicker
           ? 'Elegir carpeta usa tu ordenador (Chrome/Edge). Ruta en el servidor usa la máquina donde corre el backend.'
           : 'Ruta en el servidor (archivo o carpeta). Se añadira al indice.'}

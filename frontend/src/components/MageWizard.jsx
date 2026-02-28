@@ -20,14 +20,14 @@ export function MageWizard({ crtFilterActive = false }) {
       {message != null && (
         <div
           data-testid="mage-dialogue"
-          className="border-4 font-pixel leading-relaxed p-3 overflow-y-auto overflow-x-hidden min-h-0"
+          className="border-4 rounded-none font-pixel leading-relaxed p-3 overflow-y-auto overflow-x-hidden min-h-0"
           style={{
             width: 'var(--mage-dialogue-width, 300px)',
             fontSize: 'var(--mage-dialogue-font-size, 10px)',
             maxHeight: 'var(--mage-dialogue-max-height, 40vh)',
-            backgroundColor: 'var(--pixel-dialogue-bg)',
+            backgroundColor: 'var(--pixel-panel-light)',
             borderColor: 'var(--pixel-border)',
-            color: 'var(--pixel-text)',
+            color: 'var(--pixel-text-on-light)',
             transition: 'max-height 0.2s ease-out',
           }}
         >

@@ -48,7 +48,7 @@ export function Search() {
           Volver al menú
         </Link>
       </header>
-      <h1 className="text-lg text-[var(--pixel-accent)] mb-4">Buscar entre los archivos anadidos</h1>
+      <h1 className="pixel-page-title mb-4">Buscar entre los archivos anadidos</h1>
       <div className="flex gap-2 flex-wrap mb-4 items-center">
         <Input
           placeholder="Buscar..."
@@ -57,7 +57,7 @@ export function Search() {
           onKeyDown={(e) => e.key === 'Enter' && doSearch()}
           className="flex-1 min-w-[200px]"
         />
-        <label className="flex items-center gap-2 text-xs text-[var(--pixel-muted)] cursor-pointer">
+        <label className="flex items-center gap-2 text-xs text-[var(--pixel-text-muted)] cursor-pointer">
           <input
             type="checkbox"
             checked={semantic}
@@ -71,12 +71,12 @@ export function Search() {
         </Button>
       </div>
       {loading ? (
-        <p className="text-[var(--pixel-muted)] text-xs">Cargando...</p>
+        <p className="text-[var(--pixel-text-muted)] text-xs">Cargando...</p>
       ) : !hasSearched ? (
-        <p className="text-[var(--pixel-muted)] text-xs">Escribe palabras y pulsa BUSCAR para buscar en el indice.</p>
+        <p className="text-[var(--pixel-text-muted)] text-xs">Escribe palabras y pulsa BUSCAR para buscar en el indice.</p>
       ) : (
         <div
-          className="results-block border-4 border-[var(--pixel-border)] overflow-hidden animate-view-in"
+          className="results-block border-4 border-[var(--pixel-border)] rounded-none overflow-hidden animate-view-in"
           style={{
             backgroundColor: 'var(--pixel-results-bg)',
             color: 'var(--pixel-results-text)',

@@ -4,9 +4,9 @@
 import { useToast } from '../context/ToastContext'
 
 const typeStyles = {
-  error: 'border-[#8b2942] text-[var(--pixel-text)] bg-[var(--pixel-dialogue-bg)]',
-  warning: 'border-amber-600 text-[var(--pixel-text)] bg-[var(--pixel-dialogue-bg)]',
-  info: 'border-[var(--pixel-accent)] text-[var(--pixel-text)]',
+  error: 'border-[#8b2942] text-[var(--pixel-text-on-light)]',
+  warning: 'border-amber-600 text-[var(--pixel-text-on-light)]',
+  info: 'border-[var(--pixel-title-border)] text-[var(--pixel-text-on-light)]',
 }
 
 export function ToastList() {
@@ -23,8 +23,8 @@ export function ToastList() {
         <div
           key={id}
           data-testid="toast"
-          className={`border-4 p-3 font-pixel text-xs flex justify-between items-start gap-2 ${typeStyles[type] || typeStyles.error}`}
-          style={{ backgroundColor: 'var(--pixel-dialogue-bg)' }}
+          className={`border-4 rounded-none p-3 font-pixel text-xs flex justify-between items-start gap-2 ${typeStyles[type] || typeStyles.error}`}
+          style={{ backgroundColor: 'var(--pixel-panel-light)' }}
         >
           <span className="flex-1">{message}</span>
           <button

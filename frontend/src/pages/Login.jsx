@@ -54,11 +54,11 @@ export function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card variant="light" borderWidth={4} className="p-8 max-w-md w-full">
-        <h1 className="text-[var(--pixel-accent)] text-center text-xl mb-6 font-pixel">
-          WIZARD404
-        </h1>
-        <p className="text-[var(--pixel-muted)] text-center text-xs mb-6">
-          Document Search & Management
+        <div className="text-center mb-6">
+          <h1 className="pixel-page-title">WIZARD404</h1>
+        </div>
+        <p className="text-center mb-6">
+          <span className="pixel-subtitle">Document Search & Management</span>
         </p>
         {!backendOk && (
           <p className="text-amber-400 text-xs text-center mb-4">

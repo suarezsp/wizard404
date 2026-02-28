@@ -7,8 +7,8 @@ export function ProgressBar({ percent = 0, indeterminate = false, label = '' }) 
 
   return (
     <div
-      className="border-2 border-[var(--pixel-border)] p-2 font-pixel"
-      style={{ backgroundColor: 'var(--pixel-dialogue-bg)' }}
+      className="border-2 border-[var(--pixel-border)] rounded-none p-2 font-pixel"
+      style={{ backgroundColor: 'var(--pixel-panel-light)' }}
       role="progressbar"
       aria-valuenow={indeterminate ? undefined : value}
       aria-valuemin={0}
@@ -16,7 +16,7 @@ export function ProgressBar({ percent = 0, indeterminate = false, label = '' }) 
       aria-label={label || 'Progress'}
     >
       {label && (
-        <p className="text-xs text-[var(--pixel-muted)] mb-1">{label}</p>
+        <p className="text-xs text-[var(--pixel-text-muted)] mb-1">{label}</p>
       )}
       <div className="h-4 w-full border-2 border-[var(--pixel-border)] overflow-hidden">
         {indeterminate ? (
@@ -40,7 +40,7 @@ export function ProgressBar({ percent = 0, indeterminate = false, label = '' }) 
         )}
       </div>
       {!indeterminate && (
-        <p className="text-xs text-[var(--pixel-text)] mt-1">{Math.round(value)}%</p>
+        <p className="text-xs text-[var(--pixel-text-on-light)] mt-1">{Math.round(value)}%</p>
       )}
     </div>
   )
