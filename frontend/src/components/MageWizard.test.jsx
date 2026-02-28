@@ -18,7 +18,7 @@ function TestWrapper() {
 describe('MageWizard', () => {
   it('renders idle image when there is no message', () => {
     render(<TestWrapper />)
-    const img = screen.getByRole('img', { name: /mage/i })
+    const img = screen.getByRole('img', { name: /mage/i, hidden: true })
     expect(img).toBeTruthy()
     expect(img.getAttribute('src')).toBe('/mage_idle.png')
   })

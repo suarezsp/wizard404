@@ -1,16 +1,11 @@
 /**
- * api/client.js - Cliente HTTP para la API Wizard404.
+ * services/api.js - Cliente HTTP para la API Wizard404.
+ * Unico modulo que realiza llamadas al backend. Los componentes y paginas solo
+ * consumen desde aqui; no deben contener logica de red ni llamar a fetch directamente.
  *
- * Unico modulo que realiza llamadas al backend. Endpoints reflejados:
- *   GET  /health              - healthCheck()
- *   POST /auth/login          - login()
- *   POST /auth/register       - register()
- *   GET  /documents           - listDocuments()
- *   GET  /documents/search    - searchDocuments()
- *   GET  /documents/:id       - getDocument()
- *   GET  /documents/:id/summary - getDocumentSummary()
- *   POST /documents/import    - importPath()
- *   POST /documents/upload    - uploadDocuments()
+ * Endpoints: GET /health, POST /auth/login, POST /auth/register,
+ * GET /documents, GET /documents/search, GET /documents/:id, GET /documents/:id/summary,
+ * POST /documents/import, POST /documents/upload, GET /scan, GET /scan/files.
  */
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'

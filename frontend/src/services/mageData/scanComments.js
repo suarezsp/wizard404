@@ -1,7 +1,6 @@
 /**
- * mageScanComments.js - Frases del mago segun el tipo de archivos dominantes en un scan.
- * Usado en Scan.jsx tras mostrar resultados para que el mago comente (say()).
- * Una frase por categoria; tono mago/humor.
+ * services/mageData/scanComments.js - Frases del mago segun el tipo de archivos dominantes en un scan.
+ * Usado en Scan tras mostrar resultados. Los componentes consumen getScanComment; no definen estas frases.
  */
 
 const EXT_TO_CATEGORY = {

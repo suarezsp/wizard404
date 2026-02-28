@@ -1,9 +1,7 @@
 /**
- * Layout.jsx - Envuelve el contenido y reserva la esquina inferior derecha para el mago y sus dialogos.
- * Zona reservada definida por variables CSS (--mage-zone-width, --mage-zone-height) en :root.
+ * Layout.jsx - Envuelve el contenido y reserva la esquina inferior derecha para el mago.
+ * El mago se renderiza en App.jsx fuera del scroll/CRT. Zona reservada: --mage-zone-width, --mage-zone-height.
  */
-import { MageWizard } from './MageWizard'
-
 export function Layout({ children }) {
   return (
     <div className="min-h-screen relative" style={{ position: 'relative', zIndex: 1 }}>
@@ -16,7 +14,6 @@ export function Layout({ children }) {
       >
         {children}
       </main>
-      <MageWizard />
     </div>
   )
 }

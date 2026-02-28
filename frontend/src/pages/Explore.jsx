@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useMage } from '../context/MageContext'
-import { listDocuments } from '../api/client'
+import { listDocuments } from '../services/api'
 import { Button } from '../components/ui/Button'
 import { Table } from '../components/ui/Table'
 import { AnimatedView } from '../components/AnimatedView'
@@ -46,7 +46,7 @@ export function Explore() {
     <AnimatedView className="min-h-screen p-6">
       <header className="flex justify-between items-center mb-6 border-b-2 border-[var(--pixel-border)] pb-4">
         <Link to="/" className="link-back-menu">
-          ← Volver al menú
+          Volver al menú
         </Link>
       </header>
       <h1 className="text-lg text-[var(--pixel-accent)] mb-4">Explore documents</h1>

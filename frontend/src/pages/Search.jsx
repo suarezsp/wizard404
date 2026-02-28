@@ -7,7 +7,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useMage } from '../context/MageContext'
 import { useToast } from '../context/ToastContext'
 import { friendlyMessage } from '../utils/toastMessages'
-import { searchDocuments } from '../api/client'
+import { searchDocuments } from '../services/api'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Table } from '../components/ui/Table'
@@ -45,7 +45,7 @@ export function Search() {
     <AnimatedView className="min-h-screen p-6">
       <header className="flex justify-between items-center mb-6 border-b-2 border-[var(--pixel-border)] pb-4">
         <Link to="/" className="link-back-menu">
-          ← Volver al menú
+          Volver al menú
         </Link>
       </header>
       <h1 className="text-lg text-[var(--pixel-accent)] mb-4">Buscar entre los archivos anadidos</h1>

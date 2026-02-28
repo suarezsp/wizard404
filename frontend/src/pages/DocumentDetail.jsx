@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useMage } from '../context/MageContext'
-import { getDocument, getDocumentSummary } from '../api/client'
+import { getDocument, getDocumentSummary } from '../services/api'
 import { Card } from '../components/ui/Card'
 
 export function DocumentDetail() {
@@ -49,7 +49,7 @@ export function DocumentDetail() {
       <header className="mb-6">
         {fromSearch ? (
           <Link to="/search" state={{ fromSearch: true }} className="text-[var(--pixel-accent)] text-xs hover:underline">
-            ← Volver a resultados
+            Volver a resultados
           </Link>
         ) : (
           <Link to="/" className="text-[var(--pixel-accent)] text-xs hover:underline">

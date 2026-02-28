@@ -2,7 +2,7 @@
  * mageDialogue.test.js - Comprueba que todas las escenas existen y tienen frases no vacias.
  */
 import { describe, it, expect } from 'vitest'
-import { DIALOGUE_BY_SCENE } from './mageDialogue'
+import { DIALOGUE_BY_SCENE } from './dialogue'
 
 const EXPECTED_SCENES = [
   'login',
@@ -19,7 +19,7 @@ const EXPECTED_SCENES = [
   'cleanup',
 ]
 
-describe('mageDialogue', () => {
+describe('mageData/dialogue', () => {
   it('has all expected scene keys', () => {
     EXPECTED_SCENES.forEach((key) => {
       expect(DIALOGUE_BY_SCENE).toHaveProperty(key)

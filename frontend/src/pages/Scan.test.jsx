@@ -24,7 +24,7 @@ vi.mock('../context/MageContext', () => ({
 
 const mockScanDirectory = vi.fn()
 const mockScanDirectoryFiles = vi.fn()
-vi.mock('../api/client', () => ({
+vi.mock('../services/api', () => ({
   scanDirectory: (...args) => mockScanDirectory(...args),
   scanDirectoryFiles: (...args) => mockScanDirectoryFiles(...args),
 }))

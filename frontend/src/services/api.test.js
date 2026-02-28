@@ -1,5 +1,6 @@
 /**
  * client.test.js - Tests del cliente API con fetch mockeado.
+ * Tests del cliente API (services/api.js).
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import {
@@ -8,11 +9,11 @@ import {
   listDocuments,
   getDocumentSummary,
   scanDirectory,
-} from './client'
+} from './api'
 
 const base = 'http://localhost:8000'
 
-describe('api/client', () => {
+describe('services/api', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn())
   })

@@ -18,7 +18,7 @@ function TestWrapper({ children }) {
 vi.mock('../hooks/useAuth', () => ({ useAuth: () => ({ token: 'fake-token' }) }))
 vi.mock('../context/MageContext', () => ({ useMage: () => ({ sayForScene: vi.fn() }) }))
 const mockSearchDocuments = vi.fn()
-vi.mock('../api/client', () => ({ searchDocuments: (...args) => mockSearchDocuments(...args) }))
+vi.mock('../services/api', () => ({ searchDocuments: (...args) => mockSearchDocuments(...args) }))
 
 describe('Search', () => {
   beforeEach(() => { vi.clearAllMocks() })

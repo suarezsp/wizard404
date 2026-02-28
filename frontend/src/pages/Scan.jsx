@@ -9,8 +9,8 @@ import { useAuth } from '../hooks/useAuth'
 import { useMage } from '../context/MageContext'
 import { useToast } from '../context/ToastContext'
 import { friendlyMessage } from '../utils/toastMessages'
-import { scanDirectory, scanDirectoryFiles } from '../api/client'
-import { getScanComment } from '../dataMage/mageScanComments'
+import { scanDirectory, scanDirectoryFiles } from '../services/api'
+import { getScanComment } from '../services/mageData'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Card } from '../components/ui/Card'
@@ -221,7 +221,7 @@ export function Scan() {
     <AnimatedView className="min-h-screen p-6">
       <header className="flex justify-between items-center mb-6 border-b-2 border-[var(--pixel-border)] pb-4">
         <Link to="/" className="link-back-menu">
-          ← Volver al menú
+          Volver al menú
         </Link>
       </header>
       <h1 className="text-lg text-[var(--pixel-accent)] mb-4">Scan directory</h1>
@@ -340,11 +340,11 @@ export function Scan() {
           <h2 className="text-sm text-[var(--pixel-accent)] mb-2">Detalle</h2>
           <dl className="text-xs text-[var(--pixel-text)] space-y-1">
             <dt className="text-[var(--pixel-muted)]">Nombre</dt>
-            <dd className="mb-2">{detailFile.name}</dd>
+            <dd className="mb-2 text-[var(--pixel-text-in)]">{detailFile.name}</dd>
             {detailFile.path && (
               <>
                 <dt className="text-[var(--pixel-muted)]">Ruta</dt>
-                <dd className="mb-2 break-all">{detailFile.path}</dd>
+                <dd className="mb-2 break-all text-[var(--pixel-text-in)]">{detailFile.path}</dd>
               </>
             )}
             <dt className="text-[var(--pixel-muted)]">Tamaño</dt>

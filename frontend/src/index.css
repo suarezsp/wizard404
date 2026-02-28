@@ -3,16 +3,16 @@
 /* Tailwind v4: unico import (base + components + utilities) */
 @import 'tailwindcss';
 
-/* Paleta mistica 16-bit: fondo claro con toque frio, acento verde magico, bordes legibles.
-   Mantiene contraste y estetica pixel; sin gradientes (KISS). */
+/* Paleta en sintonia con bg.png (paisaje pixel art): verdes, azules cielo, marrones y grises.
+   Legible sobre el fondo y coherente con la estetica del paisaje. */
 :root {
-  --pixel-bg: #edeaf0;
-  --pixel-border: #5a5560;
-  --pixel-accent: #1a4d3a;
-  --pixel-text: #14142b;
-  --pixel-text-in: #14142b;
-  --pixel-muted: #b7b7db;
-  --pixel-dialogue-bg: #e4e0e8;
+  --pixel-bg: #1a3c2e;
+  --pixel-border: #5a4a3a;
+  --pixel-accent: #2e7d32;
+  --pixel-text: #0d1b12;
+  --pixel-text-in: #c8e6c9;
+  --pixel-muted: #6b7c6b;
+  --pixel-dialogue-bg: rgba(234, 230, 220, 0.95);
   /* Ajustar tamano del mago y del dialogo mediante estas variables */
   --mage-size: 328px;
   --mage-dialogue-width: 300px;
@@ -67,6 +67,7 @@ body {
   font-family: 'Press Start 2P', monospace;
   overflow-y: auto;
 }
+/* Fondo real es la capa BackgroundImage (bg.png con parallax); este color es fallback y debajo de la imagen */
 /* Scroll solo cuando el contenido supera la ventana; no forzar barra fija */
 html {
   overflow-y: auto;

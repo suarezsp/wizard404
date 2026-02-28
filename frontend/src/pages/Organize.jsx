@@ -18,7 +18,7 @@ export function Organize() {
     <AnimatedView className="min-h-screen p-6">
       <header className="flex justify-between items-center mb-6 border-b-2 border-[var(--pixel-border)] pb-4">
         <Link to="/" className="link-back-menu">
-          ← Volver al menú
+          Volver al menú
         </Link>
       </header>
       <h1 className="text-lg text-[var(--pixel-accent)] mb-4">Organize files</h1>

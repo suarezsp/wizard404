@@ -7,7 +7,7 @@ import { useTypewriter } from '../hooks/useTypewriter'
 
 const TYPEWRITER_SPEED_MS = 45
 
-export function MageWizard() {
+export function MageWizard({ crtFilterActive = false }) {
   const { message, isSpeaking, onTypewriterComplete } = useMage()
   const displayText = useTypewriter(
     message ?? '',
@@ -15,11 +15,8 @@ export function MageWizard() {
     onTypewriterComplete
   )
 
-  return (
-    <div
-      className="fixed bottom-0 right-0 flex flex-col items-end pointer-events-none"
-      style={{ zIndex: 50, gap: 'var(--mage-gap, 8px)' }}
-    >
+  const inner = (
+    <>
       {message != null && (
         <div
           data-testid="mage-dialogue"
@@ -45,6 +42,26 @@ export function MageWizard() {
         className="flex-shrink-0"
         style={{ width: 'var(--mage-size, 428px)', height: 'var(--mage-size, 428px)' }}
       />
+    </>
+  )
+
+  return (
+    <div
+      className="flex flex-col items-end pointer-events-none"
+      style={{
+        position: 'fixed',
+        bottom: 0,
+        right: 0,
+        zIndex: 50,
+        gap: 'var(--mage-gap, 8px)',
+      }}
+      aria-hidden={message == null}
+    >
+      {crtFilterActive ? (
+        <div style={{ filter: 'url(#crt-barrel)' }}>{inner}</div>
+      ) : (
+        inner
+      )}
     </div>
   )
 }

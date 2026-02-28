@@ -10,7 +10,7 @@ vi.mock('../hooks/useAuth', () => ({ useAuth: () => ({ token: 'fake-token' }) })
 vi.mock('../context/MageContext', () => ({ useMage: () => ({ sayForScene: vi.fn() }) }))
 const mockGetDocument = vi.fn()
 const mockGetDocumentSummary = vi.fn()
-vi.mock('../api/client', () => ({
+vi.mock('../services/api', () => ({
   getDocument: (...args) => mockGetDocument(...args),
   getDocumentSummary: (...args) => mockGetDocumentSummary(...args),
 }))

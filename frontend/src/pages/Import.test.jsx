@@ -24,7 +24,7 @@ vi.mock('../context/MageContext', () => ({
 
 const mockImportPath = vi.fn()
 const mockUploadDocuments = vi.fn()
-vi.mock('../api/client', () => ({
+vi.mock('../services/api', () => ({
   importPath: (...args) => mockImportPath(...args),
   uploadDocuments: (...args) => mockUploadDocuments(...args),
 }))

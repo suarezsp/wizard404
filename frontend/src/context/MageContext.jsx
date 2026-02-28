@@ -3,7 +3,7 @@
  * Expone say(text) y sayForScene(sceneId). Las paginas llaman a estos metodos para mostrar dialogos.
  */
 import { createContext, useContext, useState, useCallback, useRef } from 'react'
-import { DIALOGUE_BY_SCENE } from '../dataMage/mageDialogue'
+import { DIALOGUE_BY_SCENE } from '../services/mageData'
 
 const MageContext = createContext(null)
 

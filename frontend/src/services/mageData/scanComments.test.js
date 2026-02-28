@@ -1,10 +1,10 @@
 /**
- * mageScanComments.test.js - Tests de getScanComment (frase del mago segun extension dominante).
+ * scanComments.test.js - Tests de getScanComment (frase del mago segun extension dominante).
  */
 import { describe, it, expect } from 'vitest'
-import { getScanComment, PHRASE_BY_CATEGORY } from './mageScanComments'
+import { getScanComment, PHRASE_BY_CATEGORY } from './scanComments'
 
-describe('getScanComment', () => {
+describe('mageData/getScanComment', () => {
   it('devuelve frase de programacion cuando .java es dominante', () => {
     const phrase = getScanComment({ '.java': 60, '.xml': 11 })
     expect(phrase).toBe(PHRASE_BY_CATEGORY.programming)

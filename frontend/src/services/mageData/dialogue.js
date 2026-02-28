@@ -1,6 +1,6 @@
 /**
- * mageDialogue.js - Textos por escena para el mago (unica fuente, sin logica).
- * Usado por MageContext para sayForScene(). Texto en espanol.
+ * services/mageData/dialogue.js - Textos por escena para el mago (unica fuente, sin logica).
+ * Usado por MageContext para sayForScene(). Los componentes no deben definir estos datos.
  */
 export const DIALOGUE_BY_SCENE = {
   login: [
@@ -50,7 +50,6 @@ export const DIALOGUE_BY_SCENE = {
     'Indica la ruta en tu ordenador para analizar.',
     'Para usar este hechizo, tienes que proporcionar la ruta de tu ordenador que deseas analizar.',
     'Este hechizo es poderoso y no es peligroso. Solo analiza el contenido de la ruta que proporcionas. Clásico entre novicios.',
-
   ],
   import: [
     'Importa documentos desde una ruta del servidor al indice.',

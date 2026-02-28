@@ -4,7 +4,7 @@
 import { describe, it, expect } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { MageProvider, useMage } from './MageContext'
-import { DIALOGUE_BY_SCENE } from '../dataMage/mageDialogue'
+import { DIALOGUE_BY_SCENE } from '../services/mageData'
 
 function wrapper({ children }) {
   return <MageProvider>{children}</MageProvider>
