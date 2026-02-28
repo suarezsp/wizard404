@@ -1,28 +1,35 @@
 """
-Endpoints de los documentos
-
--> CRUD, importar, buscar, explorar + ver detalles
+Endpoints de documentos: listar, buscar, importar, subir, ver detalle y resumen.
+CRUD + explorar indice; auth requerida en list/search.
 """
 
+import tempfile
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
+from app.api.path_utils import validate_local_path
+from app.core.config import settings
 from app.db.models import User
 from app.db.session import get_db
 from app.services.documents import (
     get_document,
     import_document,
     import_directory,
+    list_documents_by_owner,
     search,
+    assist_from_documents,
 )
 from wizard404_core.models import SearchFilters
+from wizard404_core.summary import summarize_text
 
 router = APIRouter(prefix="/documents", tags=["documents"])
+
+MAX_PATH_LEN = 4096
 
 
 class DocumentResponse(BaseModel):
@@ -45,9 +52,44 @@ class SearchResponse(BaseModel):
     snippet: str
 
 
+class AssistRequest(BaseModel):
+    """Cuerpo para POST /documents/assist: documentos de contexto e identificadores de huecos."""
+    context_doc_ids: list[int] = []
+    placeholders: list[str] = []
+
+
+class AssistResponse(BaseModel):
+    suggestions: dict[str, str]
+
+
+@router.get("", response_model=list[SearchResponse])
+def list_docs(
+    limit: int = 200,
+    offset: int = 0,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Lista documentos indexados del usuario con paginacion (limit/offset)."""
+    limit = min(max(1, limit), settings.max_list_limit)
+    offset = max(0, offset)
+    docs = list_documents_by_owner(db, current_user.id, limit=limit, offset=offset)
+    return [
+        SearchResponse(
+            id=d.id,
+            name=d.name,
+            path=d.path,
+            mime_type=d.mime_type,
+            size_bytes=d.size_bytes,
+            snippet=d.content_preview[:500] if d.content_preview else "",
+        )
+        for d in docs
+    ]
+
+
 @router.get("/search", response_model=list[SearchResponse])
 def search_docs(
     q: Annotated[str, Query(description="Keywords to search")] = "",
+    semantic: bool = False,
     mime_type: str | None = None,
     min_size: int | None = None,
     max_size: int | None = None,
@@ -56,6 +98,9 @@ def search_docs(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """Busca en documentos indexados del usuario. q vacio devuelve lista vacia. semantic=true usa expansion de consulta."""
+    limit = min(max(1, limit), settings.max_search_limit)
+    offset = max(0, offset)
     filters = SearchFilters(
         query=q,
         mime_type=mime_type,
@@ -64,7 +109,7 @@ def search_docs(
         limit=limit,
         offset=offset,
     )
-    results = search(db, current_user.id, filters)
+    results = search(db, current_user.id, filters, semantic=semantic)
     return [
         SearchResponse(
             id=r.id,
@@ -78,12 +123,28 @@ def search_docs(
     ]
 
 
+@router.get("/{doc_id}/summary")
+def get_doc_summary(
+    doc_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Devuelve un resumen automático del documento (extractivo, primeras frases)."""
+    doc = get_document(db, doc_id, current_user.id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    content = (doc.content_full or doc.content_preview or "").strip()
+    summary = summarize_text(content, max_chars=300)
+    return {"summary": summary, "doc_id": doc_id}
+
+
 @router.get("/{doc_id}", response_model=DocumentResponse)
 def get_doc(
     doc_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """Devuelve un documento indexado por id. 404 si no existe o no pertenece al usuario."""
     doc = get_document(db, doc_id, current_user.id)
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
@@ -96,17 +157,21 @@ def get_doc(
         content_preview=doc.content_preview,
     )
 
-"""Importar un archivo/directorio desde el path del sistema"""
 @router.post("/import")
 def import_path(
     path: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    
+    """Importa un archivo o directorio desde el path del sistema al índice del usuario (copia a storage y persiste en DB)."""
     try:
-        p = Path(path)
+        p = validate_local_path(path, max_len=MAX_PATH_LEN)
         if p.is_file():
+            if p.stat().st_size > settings.max_import_file_bytes:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"File too large (max {settings.max_import_file_bytes // (1024*1024)} MB)",
+                )
             doc = import_document(p, current_user.id, db)
             return {"imported": 1, "document_id": doc.id}
         if p.is_dir():
@@ -114,6 +179,58 @@ def import_path(
             return {"imported": len(docs), "document_ids": [d.id for d in docs]}
         raise HTTPException(status_code=400, detail="Invalid path")
     except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e)) # wizard 404! 
+        raise HTTPException(status_code=404, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except OSError as e:
+        raise HTTPException(status_code=503, detail=f"Storage or filesystem error: {e}")
+
+
+@router.post("/upload")
+def upload_documents(
+    files: Annotated[list[UploadFile], File(description="Files to import")],
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Importa archivos subidos (multipart). Para cada archivo: guarda en temp,
+    reutiliza import_document, borra temp. Limite de tamano y cantidad por request.
+    """
+    if len(files) > settings.max_upload_files_per_request:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Too many files (max {settings.max_upload_files_per_request})",
+        )
+    imported_ids: list[int] = []
+    for upload in files:
+        if not upload.filename or upload.filename.strip() == "":
+            continue
+        suffix = Path(upload.filename).suffix or ""
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+                content = upload.file.read()
+                if len(content) > settings.max_import_file_bytes:
+                    continue
+                tmp.write(content)
+                tmp_path = Path(tmp.name)
+            try:
+                doc = import_document(tmp_path, current_user.id, db)
+                imported_ids.append(doc.id)
+            finally:
+                tmp_path.unlink(missing_ok=True)
+        except (ValueError, FileNotFoundError, OSError):
+            continue
+    return {"imported": len(imported_ids), "document_ids": imported_ids}
+
+
+@router.post("/assist", response_model=AssistResponse)
+def assist(
+    body: AssistRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Sugerencias para completar plantilla a partir de documentos de contexto (asistente)."""
+    suggestions = assist_from_documents(
+        db, current_user.id, body.context_doc_ids, body.placeholders
+    )
+    return AssistResponse(suggestions=suggestions)
