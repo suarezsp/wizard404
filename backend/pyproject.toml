@@ -12,3 +12,20 @@ requires-python = ">=3.10"
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+filterwarnings = [
+    "ignore:Unknown extension:UserWarning",
+    "ignore:.*33723.*:UserWarning",
+    "ignore:Metadata Warning:UserWarning",
+]
+
+[tool.coverage.run]
+source = ["app", "wizard404_core"]
+omit = ["tests/*", "*/__init__.py", "scripts/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+]
+fail_under = 80

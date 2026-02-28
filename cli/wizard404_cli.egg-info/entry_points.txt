@@ -1,0 +1,3 @@
+[console_scripts]
+w404 = wizard404_cli.main:app
+wizard404 = wizard404_cli.main:app
