@@ -1,0 +1,1 @@
+"""Enpoints de los recursos"""
