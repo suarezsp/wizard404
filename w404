@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Runs the W404 (Wizard404) CLI. Same as ./wizard404.
+# Interactive menu: ./w404   or   ./w404 start
+# Direct commands: ./w404 scan .   ./w404 import docs/
+clear
+cd "$(dirname "$0")"
+source backend/venv/bin/activate 2>/dev/null || true
+PYTHONPATH=backend:cli python -m wizard404_cli.main "$@"
