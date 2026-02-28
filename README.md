@@ -11,6 +11,8 @@ One codebase. Same API. Terminal and browser. Documents under control.
 
 [Documentation](docs/) · [Quick Start](#quick-start) · [Contributing](CONTRIBUTING.md)
 
+**Read in:** [English](README.md) · [Español](docs/readmes/README.es.md) · [Polski](docs/readmes/README.pl.md) · [中文](docs/readmes/README.zh.md) · [Русский](docs/readmes/README.ru.md) · [Deutsch](docs/readmes/README.de.md)
+
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
@@ -24,7 +26,7 @@ One codebase. Same API. Terminal and browser. Documents under control.
 
 ---
 
-> **Wizard404** centraliza la búsqueda y gestión de documentos (PDF, texto, Office, imágenes, audio, video): escanear directorios, importar al índice, buscar por contenido y explorar desde CLI o web. Pensado para equipos pequeños, empresas con documentos dispersos y desarrolladores que reutilizan el núcleo (`wizard404_core`) como librería.
+> **Wizard404** centralizes document search and management (PDF, text, Office, images, audio, video): scan directories, import to the index, search by content, and explore from CLI or web. Built for small teams, companies with scattered documents, and developers who reuse the core (`wizard404_core`) as a library.
 
 ---
 
@@ -61,12 +63,12 @@ The entire system runs with **SQLite** by default. One backend, one command to s
 
 | Feature | CLI | Web | Description |
 |--------|-----|-----|-------------|
-| **Scan directory** | ✅ | ✅ | Analyze types, sizes, extensions; entropy summary; drill-down by extension. |
-| **Import documents** | ✅ | ✅ | Add files to the index (path or “Choose folder” in Chrome/Edge). |
-| **Search** | ✅ | ✅ | Keywords in directory or in indexed documents; filters and semantic option. |
-| **Explore / Index** | ✅ | ✅ | List indexed documents; view detail and summary. |
-| **Organize** | ✅ | — | Move files into folders by type, date, or size. |
-| **Cleanup** | ✅ | — | Find cache, logs, tiny files; safe delete. |
+| **Scan directory** | YES | YES | Analyze types, sizes, extensions; entropy summary; drill-down by extension. |
+| **Import documents** | YES | YES | Add files to the index (path or “Choose folder” in Chrome/Edge). |
+| **Search** | YES | YES | Keywords in directory or in indexed documents; filters and semantic option. |
+| **Explore / Index** |YES | YES | List indexed documents; view detail and summary. |
+| **Organize** | YES | NO | Move files into folders by type, date, or size. |
+| **Cleanup** | YES | NO | Find cache, logs, tiny files; safe delete. |
 
 *Import and “view indexed” are best used from the **web** (Explore + Import). CLI redirects to the app for a consistent experience.*
 
