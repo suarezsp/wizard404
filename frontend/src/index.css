@@ -1,0 +1,157 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* Tailwind v4: unico import (base + components + utilities) */
+@import 'tailwindcss';
+
+/* Paleta mistica 16-bit: fondo claro con toque frio, acento verde magico, bordes legibles.
+   Mantiene contraste y estetica pixel; sin gradientes (KISS). */
+:root {
+  --pixel-bg: #edeaf0;
+  --pixel-border: #5a5560;
+  --pixel-accent: #1a4d3a;
+  --pixel-text: #1a1a2e;
+  --pixel-muted: #5a5a6a;
+  --pixel-dialogue-bg: #e4e0e8;
+  /* Ajustar tamano del mago y del dialogo mediante estas variables */
+  --mage-size: 328px;
+  --mage-dialogue-width: 300px;
+  --mage-dialogue-font-size: 10px;
+  --mage-dialogue-max-lines: 4;
+  --mage-dialogue-max-height: 40vh;
+  --mage-gap: 8px;
+  --mage-zone-width: 320px;
+  --mage-zone-height: 220px;
+  /* Resultados (Search, Scan): texto claro sobre fondo oscuro */
+  --pixel-results-bg: #1a1a2e;
+  --pixel-results-text: #e4e0e8;
+}
+
+@media (max-width: 1024px) {
+  :root {
+    --mage-size: 220px;
+    --mage-dialogue-width: 260px;
+    --mage-dialogue-font-size: 9px;
+    --mage-zone-width: 260px;
+    --mage-zone-height: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --mage-size: 140px;
+    --mage-dialogue-width: 200px;
+    --mage-dialogue-font-size: 8px;
+    --mage-zone-width: 180px;
+    --mage-zone-height: 140px;
+  }
+}
+
+.results-block th {
+  color: var(--pixel-accent);
+}
+.results-block td,
+.results-block p,
+.results-block li {
+  color: var(--pixel-results-text);
+}
+.results-block h2 {
+  color: var(--pixel-accent);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--pixel-bg);
+  color: var(--pixel-text);
+  font-family: 'Press Start 2P', monospace;
+  overflow-y: auto;
+}
+/* Scroll solo cuando el contenido supera la ventana; no forzar barra fija */
+html {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Animacion entrada de vista (rutas) */
+@keyframes viewIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-view-in {
+  animation: viewIn 0.25s ease-out forwards;
+}
+
+/* Animacion salida de vista (transicion entre rutas) */
+@keyframes viewOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+.animate-view-out {
+  animation: viewOut 0.18s ease-in forwards;
+}
+
+/* Particulas de fondo: asteriscos que aparecen y desaparecen */
+@keyframes particleFade {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.35; }
+}
+
+.particle-asterisk {
+  animation: particleFade 4s ease-in-out infinite;
+}
+
+/* Tarjetas Home: hover con elevacion discreta */
+.card-menu {
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.card-menu:hover {
+  transform: translateY(-2px);
+  border-color: var(--pixel-accent);
+  box-shadow: 0 4px 0 var(--pixel-border);
+}
+
+/* Filas de tabla: aparicion escalonada opcional */
+.table-rows-stagger tbody tr {
+  animation: viewIn 0.2s ease-out forwards;
+}
+.table-rows-stagger tbody tr:nth-child(1) { animation-delay: 0.02s; }
+.table-rows-stagger tbody tr:nth-child(2) { animation-delay: 0.04s; }
+.table-rows-stagger tbody tr:nth-child(3) { animation-delay: 0.06s; }
+.table-rows-stagger tbody tr:nth-child(4) { animation-delay: 0.08s; }
+.table-rows-stagger tbody tr:nth-child(5) { animation-delay: 0.1s; }
+.table-rows-stagger tbody tr:nth-child(n+6) { animation-delay: 0.12s; }
+
+/* Barra de progreso indeterminada (Scan carpeta local) */
+@keyframes progressIndeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
+/* Volver al menú: hover fondo verde, texto claro, sin borde inferior */
+.link-back-menu {
+  font-size: 0.75rem;
+  color: var(--pixel-accent);
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border-bottom: none;
+}
+.link-back-menu:hover {
+  background-color: var(--pixel-accent);
+  color: var(--pixel-dialogue-bg);
+  text-decoration: none;
+  border-bottom: none;
+}
