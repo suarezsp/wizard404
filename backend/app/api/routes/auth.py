@@ -35,6 +35,7 @@ class TokenResponse(BaseModel):
 
 @router.post("/login", response_model=TokenResponse)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
+    """Login: espera name y password; devuelve token y datos del usuario. 401 si credenciales incorrectas."""
     user = db.query(User).filter(User.name == data.name).first()
     if not user or not verify_password(data.password, user.password_hash):
         raise HTTPException(
@@ -51,6 +52,7 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
 
 @router.post("/register", response_model=TokenResponse)
 def register(data: RegisterRequest, db: Session = Depends(get_db)):
+    """Registro: crea usuario con name y password; devuelve token. 400 si el nombre ya existe."""
     if db.query(User).filter(User.name == data.name).first():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

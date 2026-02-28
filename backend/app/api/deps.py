@@ -23,6 +23,7 @@ def get_current_user(
     ],
     db: Annotated[Session, Depends(get_db)],
 ) -> User:
+    """Obtiene el usuario autenticado desde el Bearer JWT. Lanza HTTP 401 si no hay token, es inválido o el usuario no existe."""
     if not credentials:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

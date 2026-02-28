@@ -26,6 +26,12 @@ class Settings(BaseSettings):
 
     # Documentos
     documents_storage_path: Path = Path("./data/documents").resolve()
+    max_import_file_bytes: int = 50 * 1024 * 1024  # 50 MB por archivo
+    max_upload_files_per_request: int = 500  # max archivos en POST /documents/upload
+
+    # API paginación
+    max_list_limit: int = 500
+    max_search_limit: int = 100
 
 
 settings = Settings()
