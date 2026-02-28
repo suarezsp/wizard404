@@ -23,8 +23,9 @@ except ImportError:
     DirectoryStats = None  # type: ignore[misc, assignment]
 
 
-def run_scan(directory: str, recursive: bool = True) -> tuple[bool, "DirectoryStats | None"]:
-    """Ejecuta el escaneo y muestra resultado. Devuelve (True, stats) si OK, (False, None) si error."""
+def run_scan(directory: str, recursive: bool = True, quiet: bool = False) -> tuple[bool, "DirectoryStats | None"]:
+    """Ejecuta el escaneo y muestra resultado. Devuelve (True, stats) si OK, (False, None) si error.
+    Si quiet=True (TUI), no imprime la tabla; solo devuelve el resultado."""
     p = Path(directory).resolve()
     if not p.is_dir():
         console.print(f"[red]Is not a directory: {directory}[/red]")
@@ -33,20 +34,21 @@ def run_scan(directory: str, recursive: bool = True) -> tuple[bool, "DirectorySt
         console.print("[yellow]Backend not available.[/yellow]")
         return False, None
     stats = analyze_directory(p, recursive=recursive)
-    table = Table(
-        title=f"[bold cyan]Scan:[/bold cyan] {directory}",
-        title_style="bold",
-        header_style="bold cyan",
-        show_lines=True,
-    )
-    table.add_column("Extensión", style="green")
-    table.add_column("Cantidad", justify="right", style="yellow")
-    for ext, n in sorted(stats.by_extension.items()):
-        table.add_row(ext, str(n))
-    table.add_row("", "")
-    table.add_row("[bold]Total files[/bold]", str(stats.total_files))
-    table.add_row("[bold]Total size[/bold]", f"{stats.total_size:,} bytes")
-    console.print(table)
+    if not quiet:
+        table = Table(
+            title=f"[bold cyan]Scan:[/bold cyan] {directory}",
+            title_style="bold",
+            header_style="bold cyan",
+            show_lines=True,
+        )
+        table.add_column("Extensión", style="green")
+        table.add_column("Cantidad", justify="right", style="yellow")
+        for ext, n in sorted(stats.by_extension.items()):
+            table.add_row(ext, str(n))
+        table.add_row("", "")
+        table.add_row("[bold]Total files[/bold]", str(stats.total_files))
+        table.add_row("[bold]Total size[/bold]", f"{stats.total_size:,} bytes")
+        console.print(table)
     return True, stats
 
 

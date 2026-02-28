@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wizard404-cli"
+version = "0.1.0"
+description = "CLI de Wizard404 para gestión de documentos"
+requires-python = ">=3.10"
+dependencies = [
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+    "simple-term-menu>=1.6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0.0"]
+
+[project.scripts]
+w404 = "wizard404_cli.main:app"
+wizard404 = "wizard404_cli.main:app"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
