@@ -105,7 +105,7 @@ docs/             Architektur, Mitwirken, Web-Verzeichniszugriff
 
 ```bash
 git clone <Repo-URL>
-cd hack-athon
+cd wizard404
 ```
 
 ### 2. Backend
