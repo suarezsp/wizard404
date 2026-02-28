@@ -107,7 +107,7 @@ docs/             Architecture, contributing, web directory access, core-as-libr
 
 ```bash
 git clone <repo-url>
-cd hack-athon
+cd wizard404
 ```
 
 ### 2. Backend
