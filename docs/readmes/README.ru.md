@@ -107,7 +107,7 @@ docs/             Архитектура, участие, доступ к кат
 
 ```bash
 git clone <url-репозитория>
-cd hack-athon
+cd wizard404
 ```
 
 ### 2. Бэкенд
