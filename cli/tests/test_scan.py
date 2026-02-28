@@ -34,3 +34,14 @@ def test_run_scan_valid_dir(tmp_path):
     assert ok in (True, False)
     if ok:
         assert stats is not None
+
+
+def test_run_scan_quiet_returns_same_result(tmp_path):
+    """run_scan(quiet=True) returns (True, stats) without printing table (same as quiet=False)."""
+    (tmp_path / "x.txt").write_text("x")
+    ok_quiet, stats_quiet = run_scan(str(tmp_path), recursive=False, quiet=True)
+    ok_normal, stats_normal = run_scan(str(tmp_path), recursive=False, quiet=False)
+    assert ok_quiet == ok_normal
+    if ok_quiet and stats_quiet and stats_normal:
+        assert stats_quiet.total_files == stats_normal.total_files
+        assert stats_quiet.by_extension == stats_normal.by_extension
