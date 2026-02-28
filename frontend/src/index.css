@@ -9,8 +9,9 @@
   --pixel-bg: #edeaf0;
   --pixel-border: #5a5560;
   --pixel-accent: #1a4d3a;
-  --pixel-text: #1a1a2e;
-  --pixel-muted: #5a5a6a;
+  --pixel-text: #14142b;
+  --pixel-text-in: #14142b;
+  --pixel-muted: #b7b7db;
   --pixel-dialogue-bg: #e4e0e8;
   /* Ajustar tamano del mago y del dialogo mediante estas variables */
   --mage-size: 328px;

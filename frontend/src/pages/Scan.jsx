@@ -334,7 +334,7 @@ export function Scan() {
               onClick={() => setDetailFile(null)}
               className="text-xs text-[var(--pixel-accent)] hover:underline w-fit"
             >
-              ← Volver a la tabla
+              Volver a la tabla
             </button>
           </div>
           <h2 className="text-sm text-[var(--pixel-accent)] mb-2">Detalle</h2>

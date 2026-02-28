@@ -1,146 +1,192 @@
+<div align="center">
+
+<img src="docs/imgs/w404_banner.png" alt="Wizard404" width="720"/>
+
 # Wizard404
 
-Wizard404 es una plataforma open source para **importar, indexar, buscar y explorar documentos corporativos** (PDF, texto plano y formatos Office básicos) pensada para ser fácil de usar, fácil de extender y fácil de contribuir.
+### Document Search & Management — CLI + Web
 
-## Problema que resuelve
+**Scan · Import · Search · Explore · Organize · Cleanup.**  
+One codebase. Same API. Terminal and browser. Documents under control.
 
-- **Encontrar documentos por contenido**: buscar contratos, ofertas o informes por palabras clave dentro del texto sin abrir cada PDF o Office.
-- **Organizar descargas y carpetas**: ordenar archivos por tipo, fecha o tamaño (Organize) y detectar cachés o archivos temporales para limpiar (Cleanup).
-- **Un solo lugar para buscar**: escanear directorios, importar al índice y buscar tanto en disco como en el índice desde CLI o web.
+[Documentation](docs/) · [Quick Start](#quick-start) · [Contributing](CONTRIBUTING.md)
 
-## Impacto
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![SQLite](https://img.shields.io/badge/SQLite-3-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://sqlite.org)
 
-Wizard404 está pensado para **equipos pequeños** y **empresas** con documentos dispersos en carpetas y correo; para **desarrolladores** que quieran reutilizar el núcleo (`wizard404_core`) como librería en sus propias herramientas. Ver [Usar el núcleo como librería](docs/core-as-library.md) para un ejemplo mínimo de uso en código.
+**MIT** · Python · FastAPI · React · CLI + Web
 
-## Quick Start (2 minutos)
+</div>
 
-1. **Clonar y requisitos**: Python 3.10+, Node 18+ (opcional para frontend). Por defecto usa SQLite (no hace falta PostgreSQL).
-2. **Backend**: `cd backend && python -m venv venv && source venv/bin/activate` (en Windows: `venv\Scripts\activate`) y `pip install -r requirements.txt`.
-3. **CLI**: Desde la raíz del repo ejecuta `./w404` (macOS/Linux) o `w404.bat` (Windows). También: `py -m wizard404_cli.main` con `PYTHONPATH=backend;cli` (Windows: `set PYTHONPATH=backend;cli`). El menú se abre; si el backend no está corriendo, se inicia solo y se configura el token por defecto (usuario `w404`/`w404`).
-4. **Listo**: Usa "Scan directory", "Import documents", "Search" o "Explore documents" desde el menú. La API interactiva está en **http://localhost:8000/docs** cuando el backend está activo. El endpoint **GET /health** comprueba estado del servicio y de la base de datos.
+---
 
-## Estructura del repositorio
+> **Wizard404** centraliza la búsqueda y gestión de documentos (PDF, texto, Office, imágenes, audio, video): escanear directorios, importar al índice, buscar por contenido y explorar desde CLI o web. Pensado para equipos pequeños, empresas con documentos dispersos y desarrolladores que reutilizan el núcleo (`wizard404_core`) como librería.
 
-Este monorepo se organiza por capas funcionales, separando claramente núcleo, interfaz de línea de comandos, API y frontend web:
+---
 
-- **`backend/`**: servicios y lógica de servidor en Python.
-  - Dominio: núcleo reutilizable `wizard404_core` (ingesta, análisis, indexado y búsqueda de documentos).
-  - Capa de Presentación: API HTTP basada en FastAPI para exponer la funcionalidad a clientes externos (web, integraciones, etc.).
-  - Capa de acceso a datos (PostgreSQL + sistema de ficheros).
-- **`cli/`**: cliente de línea de comandos **w404** (Wizard404) construido sobre `wizard404_core`.
-  - Menú interactivo: `w404` o `w404 start` / `w404 init` (navegación con flechas, Q salir).
-  - Comandos directos: import, scan, index, search, browse, **organize**, **cleanup**.
-  - **Organize**: mueve archivos a carpetas por tipo, fecha o tamaño (destino por defecto `~/Desktop/Organized`).
-  - **Cleanup**: detecta archivos pequeños, cache y logs; muestra resumen y opción de borrado seguro.
-- **`frontend/`**: aplicación web creada con React + Vite + TailwindCSS.
-  - Interfaz gráfica para búsqueda y exploración de documentos.
-  - Estética inspirada en interfaces **16-bit**, con componentes reutilizables (botones, tablas, tarjetas).
-  - **Acceso a carpetas locales**: en Chrome/Edge puedes usar "Elegir carpeta" para Scan e Import; en el resto de navegadores se usa "Ruta en el servidor". Ver [docs/web-directorio-local.md](docs/web-directorio-local.md).
-- **`docs/`**: documentación extendida del proyecto.
-  - Guías de arquitectura, contribución y decisiones técnicas.
-  - Material adicional para colaboradores y para explicar el diseño del sistema.
+## What is Wizard404?
 
-## Visión general
+Wizard404 is an **open-source document search and management platform** — not only a file browser. It is a full stack: a reusable **core** in Python, a **REST API** (FastAPI), an interactive **CLI** (w404), and a **web app** (React) with the same capabilities.
 
-Wizard404 se diseña con estos principios:
+Traditional tools make you open each file. Wizard404 **indexes content**, so you search by keywords, filter by type or size, and jump to the right document. You can scan a folder, see stats by extension and entropy, organize files by type/date/size, and clean up caches and logs — from the terminal or from the browser.
 
-- **Open source de verdad**: documentación clara, estructura estándar, licencia abierta y guía de contribución.
-- **Calidad sobre complejidad**: se prioriza una arquitectura limpia y mantenible, evitando el over-engineering.
-- **CLI primero, web después**: la versión CLI es la base funcional; el frontend web se apoya en la misma API y núcleo.
-- **Escalable pero realista**: pensado para funcionar bien en local (demo en portátil) y poder crecer a despliegues en la nube.
+The entire system runs with **SQLite** by default. One backend, one command to start.
 
-La documentación detallada de cada capa (backend, core, CLI, frontend) se irá ampliando en `docs/` y en los READMEs específicos de cada carpeta.
+```bash
+# CLI — menu in 2 commands
+./w404
 
-## Instalación rápida (macOS)
+# Web — backend + frontend
+./run-dev.sh
+# API at http://localhost:8000 · App at http://localhost:5173
+```
 
-### Requisitos
+---
 
-- Python 3.10+
-- Node.js 18+
-- PostgreSQL
+## Preview
 
-### Backend
+| CLI — Main menu | Scan results — Entropy & by extension |
+|-----------------|---------------------------------------|
+| <img src="docs/imgs/scp-1.png" alt="CLI menu" width="400"/> | <img src="docs/imgs/scp-2.png" alt="Scan results" width="400"/> |
+
+*Left: Main menu (Scan, Import, Search, Explore, Organize, Cleanup). Right: Scan results with summary by extension and entropy.*
+
+---
+
+## What You Can Do
+
+| Feature | CLI | Web | Description |
+|--------|-----|-----|-------------|
+| **Scan directory** | ✅ | ✅ | Analyze types, sizes, extensions; entropy summary; drill-down by extension. |
+| **Import documents** | ✅ | ✅ | Add files to the index (path or “Choose folder” in Chrome/Edge). |
+| **Search** | ✅ | ✅ | Keywords in directory or in indexed documents; filters and semantic option. |
+| **Explore / Index** | ✅ | ✅ | List indexed documents; view detail and summary. |
+| **Organize** | ✅ | — | Move files into folders by type, date, or size. |
+| **Cleanup** | ✅ | — | Find cache, logs, tiny files; safe delete. |
+
+*Import and “view indexed” are best used from the **web** (Explore + Import). CLI redirects to the app for a consistent experience.*
+
+---
+
+## Problem It Solves
+
+- **Find documents by content** — Search contracts, reports, or quotes by keyword without opening every PDF or Office file.
+- **Organize downloads and folders** — Sort by type, date, or size (Organize); detect caches and temp files (Cleanup).
+- **One place to search** — Scan directories, import to the index, and search on disk or in the index from CLI or web.
+
+---
+
+## Architecture
+
+Monorepo by layer: core, API, CLI, frontend.
+
+```
+backend/          FastAPI app, auth, health, config
+  app/            Routes (auth, documents, scan), services, db
+  wizard404_core  Discovery, extractors (PDF, Office, text, image, media), search, semantic, summary
+cli/              w404 — TUI menus and direct commands (scan, import, search, organize, cleanup)
+frontend/         React + Vite + Tailwind — 16-bit style UI, Scan, Import, Search, Explore, Document detail
+docs/             Architecture, contributing, web directory access, core-as-library
+```
+
+---
+
+## Quick Start
+
+### 1. Clone and requirements
+
+- **Python 3.10+**
+- **Node 18+** (optional, for frontend)
+- **SQLite** (default; optional PostgreSQL)
+
+```bash
+git clone <repo-url>
+cd hack-athon
+```
+
+### 2. Backend
 
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload
-python -m scripts.seed_admin  # Usuario admin/admin
 ```
 
-Por defecto usa **SQLite** (no requiere PostgreSQL). Para usar Postgres:
-`export DATABASE_URL=postgresql://user:pass@localhost:5432/wizard404`
+Optional: `python -m scripts.seed_admin` for default user. API at **http://localhost:8000**, docs at **http://localhost:8000/docs**.
 
-### Frontend
+### 3. CLI (w404)
+
+From repo root:
 
 ```bash
-cd frontend
-npm install
-npm run dev
+./w404
 ```
 
-### Montar todo (backend + frontend) para probar la web
+Opens the interactive menu. If the backend is not running, the CLI can start it and set the default token (user `w404` / `w404`). Then use **Scan directory**, **Import documents**, **Search**, **Explore**, **Organize**, **Cleanup**.
 
-**Opción 1 — Dos terminales (recomendado para desarrollo)**
+Direct commands:
 
-1. **Terminal 1 — Backend**
-   ```bash
-   cd backend
-   source venv/bin/activate   # Windows: venv\Scripts\activate
-   uvicorn app.main:app --reload
-   ```
-   El API queda en **http://localhost:8000** y la documentación en http://localhost:8000/docs.
+```bash
+./w404 scan .
+./w404 import docs/
+./w404 search contrato --path docs/
+./w404 organize /path -d ~/Desktop/Organized --by type
+./w404 cleanup /path --dry-run
+```
 
-2. **Terminal 2 — Frontend**
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-   La app web queda en **http://localhost:5173** (o el puerto que indique Vite). El frontend llama al backend por defecto en `http://localhost:8000` (configurable con `VITE_API_URL`).
+### 4. Web (backend + frontend)
 
-**Opción 2 — Un solo comando (macOS/Linux)**
-
-Desde la raíz del repo:
+From repo root:
 
 ```bash
 ./run-dev.sh
 ```
 
-El script levanta el backend en segundo plano y el frontend en primer plano. Al pulsar Ctrl+C se detiene el frontend y el backend. La primera vez asegúrate de tener el venv del backend y las dependencias del frontend instaladas (ver pasos anteriores).
+Backend in background, frontend in foreground. App at **http://localhost:5173**. First time: ensure backend venv and `frontend/node_modules` are installed (steps 2 and `cd frontend && npm install`).
 
-### CLI (comando principal: w404)
+---
+
+## Impact & Audience
+
+- **Small teams and companies** with documents scattered across folders and email.
+- **Developers** who want to reuse the core as a library — see [Using the core as a library](docs/core-as-library.md).
+
+---
+
+## Development
 
 ```bash
-# Opcion 1: scripts en la raiz (usar w404 o wizard404)
-./w404                   # Abre el menu interactivo; si el backend no esta corriendo, lo inicia
-                         # y configura token por defecto (usuario w404/w404) para Index y busqueda en indice
-./w404 start             # Menu interactivo
-./w404 init              # Alias de start
-./w404 scan .            # Comandos directos
-./w404 import docs/
-./w404 search contrato --path docs/
-./w404 browse docs/
-./w404 organize /ruta/origen -d ~/Desktop/Organized --by type
-./w404 cleanup /ruta --dry-run
+# Backend tests
+cd backend && source venv/bin/activate && pytest tests -v
 
-# Tambien: ./wizard404  y  ./wizard404 start  (mismo comportamiento)
+# Frontend tests
+cd frontend && npm run test
 
-# Opcion 2: tener w404 en el PATH (desde la raiz del repo)
-pip install -e ./cli
-w404 start
-w404 scan .
-
-# Opcion 3: manual sin instalar
-cd backend && source venv/bin/activate
-cd .. && PYTHONPATH=backend:cli python -m wizard404_cli.main start
+# Lint / format per project (backend: ruff/black; frontend: eslint/prettier)
 ```
 
-## Licencia
+---
 
-MIT. Ver [LICENSE](LICENSE).
+## License
 
-## Contribuir
+MIT. See [LICENSE](LICENSE).
 
-Queremos que sea fácil contribuir. Consulta la [guía de contribución (CONTRIBUTING.md)](CONTRIBUTING.md) para entorno, estándares de código y proceso. Si tienes ideas de mejora, abre un issue o revisa la sección "Good First Issues" en CONTRIBUTING. Código de conducta: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+---
+
+## Contributing
+
+We want contributions to be easy. See the [contributing guide (CONTRIBUTING.md)](CONTRIBUTING.md) for setup, code standards, and process. For ideas, open an issue or check “Good First Issues” in CONTRIBUTING. Code of conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+---
+
+<div align="center">
+
+**Wizard404** — Python · FastAPI · React · Vite · Tailwind · CLI + Web
+
+</div>
