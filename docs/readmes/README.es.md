@@ -105,7 +105,7 @@ docs/             Arquitectura, contribucion, core como libreria
 
 ```bash
 git clone <url-repo>
-cd hack-athon
+cd wizard404
 ```
 
 ### 2. Backend

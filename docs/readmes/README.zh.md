@@ -107,7 +107,7 @@ docs/             架构、贡献、Web 目录访问、核心即库
 
 ```bash
 git clone <仓库地址>
-cd hack-athon
+cd wizard404
 ```
 
 ### 2. 后端
