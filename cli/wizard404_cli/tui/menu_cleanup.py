@@ -24,9 +24,10 @@ def _size_mb_display(size_bytes: int) -> str:
 def _run_cleanup_choose_files(summary: dict) -> set[str] | None:
     to_delete: set[str] = set()
     categories = [
-        ("Tiny files (< 1 KB)", "tiny"),
         ("Cache dirs / files", "cache_dirs"),
         ("Log files", "logs"),
+        ("Tiny files (< 1 KB)", "tiny"),
+        ("Duplicados (excl. programación)", "duplicates"),
     ]
     for title, key in categories:
         items = summary.get(key) or []

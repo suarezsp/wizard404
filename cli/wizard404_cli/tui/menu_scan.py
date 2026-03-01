@@ -1,8 +1,10 @@
 """
 Menú Scan: elegir directorio, ejecutar scan y mostrar resultados por tipo/directorio.
 Una sola pasada con discover_and_extract; resultados en memoria para Summary y opciones sin re-escanear.
+View by directory: normalización de rutas (resolve + as_posix) y navegación anidada.
 """
 
+import os
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -31,6 +33,11 @@ from wizard404_cli.tui import common as tui_common
 OLD_DAYS_THRESHOLD = 60
 
 
+def _norm_path(p: str | Path) -> str:
+    """Normaliza ruta para comparación (symlinks, mayúsculas, etc.)."""
+    return os.path.normcase(Path(p).resolve().as_posix())
+
+
 def _build_stats_from_metadata(metas: list, DirectoryStats) -> "DirectoryStats":
     """Build DirectoryStats from a list of DocumentMetadata."""
     stats = DirectoryStats()
@@ -44,12 +51,17 @@ def _build_stats_from_metadata(metas: list, DirectoryStats) -> "DirectoryStats":
 
 
 def _do_scan_with_cache(path: str):
-    """Single pass: discover_and_extract, build stats, return (path, stats, list of metadata)."""
-    if not tui_common.discover_and_extract or tui_common.DirectoryStats is None:
-        return (path, None, [])
-    metas = list(tui_common.discover_and_extract(path, recursive=True))
-    stats = _build_stats_from_metadata(metas, tui_common.DirectoryStats)
-    return (path, stats, metas)
+    """Single pass: discover_and_extract_with_summary (o discover_and_extract), build stats; return (path, stats, metas, failed_count, error_summary)."""
+    discover_with_summary = getattr(tui_common, "discover_and_extract_with_summary", None)
+    if discover_with_summary and tui_common.DirectoryStats:
+        metas, failed_count, error_summary = discover_with_summary(path, recursive=True)
+        stats = _build_stats_from_metadata(metas, tui_common.DirectoryStats)
+        return (path, stats, metas, failed_count, error_summary)
+    if tui_common.discover_and_extract and tui_common.DirectoryStats:
+        metas = list(tui_common.discover_and_extract(path, recursive=True))
+        stats = _build_stats_from_metadata(metas, tui_common.DirectoryStats)
+        return (path, stats, metas, 0, "")
+    return (path, None, [], 0, "")
 
 
 def _show_summary_table(path: str, stats, cached_metadata_list: list) -> None:
@@ -93,6 +105,51 @@ def _show_summary_table(path: str, stats, cached_metadata_list: list) -> None:
         console.print(DELIMITER_LINE, style="dim")
         console.print(f"  [{STYLE_INFO}] {msg} [/]")
     input("\n  [Enter] Back to results menu")
+
+
+def _run_view_by_directory(scan_root: str, current_dir: Path, cached_metadata_list: list) -> None:
+    """Navegación por directorios: archivos en el directorio actual y subdirectorios (anidado). Comparación de rutas normalizada."""
+    console = get_console()
+    current_norm = _norm_path(current_dir)
+    docs = [
+        m for m in cached_metadata_list
+        if _norm_path(Path(m.path).resolve().parent) == current_norm
+    ]
+    subdirs = tui_common.list_subdirectories(str(current_dir)) if tui_common.list_subdirectories else []
+
+    options = []
+    if docs:
+        options.append(f"View files in {current_dir.name}  ({len(docs)} files)")
+    for d in subdirs:
+        options.append(f"{d.name}/  —  {Path(d).resolve()}")
+    options.append("← Back")
+
+    if not docs and not subdirs:
+        console.print(f"[yellow]No supported files and no subdirectories in {current_dir.name}.[/yellow]")
+        input("\n  [Enter] Continue")
+        return
+
+    while True:
+        menu = TerminalMenu(
+            options,
+            title=f"\n  View by directory: {current_dir}\n",
+            clear_screen=True,
+            menu_highlight_style=MENU_HIGHLIGHT_STYLE,
+            status_bar_style=STATUS_BAR_STYLE,
+            status_bar=STATUS_SUBMENU,
+        )
+        idx = menu.show()
+        if idx is None or idx == len(options) - 1:
+            return
+        if docs and idx == 0:
+            run_list_detail_loop(docs, f"Files in {current_dir.name}", count_label="files")
+            continue
+        # Option is a subdirectory
+        subdir_offset = 1 if docs else 0
+        subdir_idx = idx - subdir_offset
+        if 0 <= subdir_idx < len(subdirs):
+            chosen = Path(subdirs[subdir_idx]).resolve()
+            _run_view_by_directory(scan_root, chosen, cached_metadata_list)
 
 
 def run_scan_results_menu(path: str, stats, cached_metadata_list: list) -> None:
@@ -176,45 +233,21 @@ def run_scan_results_menu(path: str, stats, cached_metadata_list: list) -> None:
         elif idx == 2:
             if not tui_common.list_subdirectories:
                 continue
-            subdirs = tui_common.list_subdirectories(path)
-            if not subdirs:
-                console = get_console()
-                console.print("[yellow]No subdirectories found.[/yellow]")
-                input("\n  [Enter] Continue")
-                continue
-            subdir_options = [f"{d.name}/  —  {d}" for d in subdirs]
-            subdir_options.append("← Back")
-            subdir_menu = TerminalMenu(
-                subdir_options,
-                title="  Choose directory\n",
-                clear_screen=True,
-                menu_highlight_style=MENU_HIGHLIGHT_STYLE,
-                status_bar_style=STATUS_BAR_STYLE,
-                status_bar=STATUS_SUBMENU,
-            )
-            subdir_idx = subdir_menu.show()
-            if subdir_idx is None or subdir_idx == len(subdir_options) - 1:
-                continue
-            chosen_dir = subdirs[subdir_idx]
-            chosen_resolved = Path(chosen_dir).resolve()
-            docs = [m for m in cached_metadata_list if Path(m.path).resolve().parent == chosen_resolved]
-            if not docs:
-                console = get_console()
-                console.print(f"[yellow]No supported files in {chosen_dir.name}[/yellow]")
-            else:
-                run_list_detail_loop(docs, f"Files in {chosen_dir.name}", count_label="files")
+            _run_view_by_directory(path, Path(path).resolve(), cached_metadata_list)
 
 
 def handle_scan() -> None:
-    """Menú Scan: one pass with discover_and_extract, then results menu (Summary, view by type/dir, filters) from cache."""
+    """Menú Scan: one pass with discover_and_extract_with_summary, then results menu (Summary, view by type/dir, filters) from cache."""
     path = pick_directory_tree("  Choose directory to scan")
     if not path:
         return
     try:
-        path, stats, cached = run_with_loading_scan(_do_scan_with_cache, path)
+        path, stats, cached, failed_count, error_summary = run_with_loading_scan(_do_scan_with_cache, path)
     except Exception:
         input("\n  [Enter] Back to menu")
         return
+    if failed_count > 0 and error_summary:
+        get_console().print(f"[yellow]Algunos ítems no se han podido analizar: {error_summary}[/yellow]")
     if stats is not None and cached is not None:
         run_scan_results_menu(path, stats, cached)
     else:

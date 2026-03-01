@@ -26,6 +26,7 @@ if _backend_path.exists() and str(_backend_path) not in sys.path:
 try:
     from wizard404_core import (
         discover_and_extract,
+        discover_and_extract_with_summary,
         list_documents,
         list_files_by_extension_with_metadata,
         list_subdirectories,
@@ -39,6 +40,7 @@ try:
 except ImportError:
     _CORE_AVAILABLE = False
     discover_and_extract = None  # type: ignore[assignment]
+    discover_and_extract_with_summary = None  # type: ignore[assignment]
     list_documents = None  # type: ignore[assignment]
     list_files_by_extension_with_metadata = None  # type: ignore[assignment]
     list_subdirectories = None  # type: ignore[assignment]
@@ -98,6 +100,34 @@ DELIMITER_LINE = "=" * 60
 # URL de la interfaz web (Explore / Import). Variable W404_FRONTEND_URL para override.
 FRONTEND_BASE_URL = os.environ.get("W404_FRONTEND_URL", "http://localhost:5173")
 WIZARD_COL_WIDTH = 20
+
+# Texto para la pantalla Help (instrucciones de uso de la TUI)
+HELP_BODY = """
+Navigation
+  Up/Down arrows or [j] / [k]  Move selection
+  [Enter]                       Confirm selection or open
+  [Q] or [B]                   Back / Exit submenu
+
+Main menu
+  Scan directory    Analyze types and sizes in a folder (local).
+  Import documents  Add files to the index (requires backend).
+  Search            Search by keywords in the index (requires backend).
+  Explore documents Browse folders and view file metadata (local).
+  Organize files    Move files into folders by type, date or size (local).
+  Cleanup           Find cache, logs, tiny and duplicate files (local).
+
+Tips
+  In directory picker: navigate with arrows, [Enter] to select, [B] to go back.
+  After a scan you can view results by file type or by directory.
+  For index and search use the web interface: """ + FRONTEND_BASE_URL + """
+"""
+
+
+def show_help_screen() -> None:
+    """Muestra en terminal las instrucciones de uso de la TUI. Espera Enter para volver."""
+    console = get_console()
+    console.print(Panel(HELP_BODY.strip(), title="[bold cyan]Wizard404 TUI — Help[/bold cyan]", border_style="cyan"))
+    input("\n  [Enter] Back to menu")
 
 
 def _ascii_path() -> Path:

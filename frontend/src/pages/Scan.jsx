@@ -128,6 +128,9 @@ export function Scan() {
       const data = await scanDirectory(token, path.trim())
       stopProgress(true)
       setStats(data)
+      if (data.failed_count > 0 && data.error_summary) {
+        addToast(`Algunos ítems no se han podido analizar: ${data.error_summary}`, 'warning')
+      }
     } catch (err) {
       stopProgress(false)
       addToast(friendlyMessage(err.message) || 'Error al escanear', 'error')

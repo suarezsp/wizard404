@@ -20,7 +20,7 @@ export function BackgroundImage() {
       style={{
         zIndex: -1,
         opacity: 0.6,
-        backgroundImage: 'url(/bg.jpg)',
+        backgroundImage: 'url(/bg.jpg )',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',

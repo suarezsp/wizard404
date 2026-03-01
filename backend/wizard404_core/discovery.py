@@ -11,14 +11,37 @@ from typing import Iterator
 from wizard404_core.models import DocumentMetadata, DirectoryStats
 from wizard404_core.extractors import extract_metadata
 
+# Tipo para resultado con resumen de fallos (scan)
+DiscoverResult = tuple[list["DocumentMetadata"], int, str]
+
+# Extensiones detectadas en scan/organize/explore (exhaustivo: documentos, codigo, config, medios)
 SUPPORTED_EXTENSIONS = {
+    # Documentos y texto
     ".pdf", ".txt", ".md", ".rst", ".log", ".csv", ".docx", ".xlsx",
+    ".doc", ".xls", ".odt", ".ods", ".rtf", ".tex", ".sty", ".bib",
+    ".mdx", ".ipynb", ".Rmd", ".qmd",
+    # Imagen
     ".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".tiff", ".tif",
-    ".heic", ".heif",
+    ".heic", ".heif", ".svg", ".ico",
+    # Video y audio
     ".mov", ".mp4", ".avi", ".mkv", ".webm", ".m4v", ".wmv", ".flv",
-    ".mp3", ".wav", ".flac", ".m4a", ".aac", ".ogg", ".wma",
-    ".c", ".h", ".java", ".py", ".js", ".ts", ".go", ".rs", ".sh", ".bat",
-    ".exe", ".dll", ".so", ".dylib",
+    ".mp3", ".wav", ".flac", ".m4a", ".aac", ".ogg", ".wma", ".opus", ".weba",
+    # Codigo y markup
+    ".c", ".h", ".cpp", ".hpp", ".cc", ".cxx", ".java", ".py", ".pyw", ".pyi",
+    ".js", ".ts", ".jsx", ".tsx", ".mjs", ".cjs", ".go", ".rs", ".rb", ".php",
+    ".jl", ".swift", ".kt", ".kts", ".scala", ".sc", ".r", ".R", ".sql",
+    ".sh", ".bash", ".bat", ".cmd", ".ps1", ".zsh", ".fish", ".ksh",
+    ".html", ".htm", ".xhtml", ".xml", ".xsl", ".xslt", ".svg",
+    ".json", ".yaml", ".yml", ".toml", ".ini", ".cfg", ".conf", ".config",
+    ".vue", ".svelte", ".astro", ".pl", ".pm", ".lua", ".rkt", ".scm",
+    ".clj", ".cljs", ".cljc", ".edn", ".vim", ".gradle", ".proto",
+    ".graphql", ".gql", ".coffee", ".less", ".scss", ".sass",
+    ".hs", ".lhs", ".fs", ".fsi", ".fsx", ".vb", ".vbs", ".asm", ".s",
+    ".nim", ".cr", ".ex", ".exs", ".eex", ".heex", ".ml", ".mli", ".re", ".rei",
+    ".zig", ".v", ".sv", ".pp", ".rake", ".erb", ".haml", ".slim",
+    ".mustache", ".hbs", ".ejs", ".njk", ".twig", ".j2", ".liquid",
+    # Binarios
+    ".exe", ".dll", ".so", ".dylib", ".a", ".lib", ".o", ".obj",
 }
 
 def discover_files(
@@ -63,6 +86,29 @@ def discover_and_extract(
         meta = extract_metadata(f)
         if meta:
             yield meta
+
+
+def discover_and_extract_with_summary(
+    path: str | Path,
+    recursive: bool = True,
+) -> DiscoverResult:
+    """
+    Descubre archivos, extrae metadatos y devuelve lista + contador de fallos y mensaje breve.
+    failed_count = archivos no soportados (extract_metadata devolvió None) o con error (is_corrupt).
+    error_summary = texto breve para mostrar al usuario tras el scan si failed_count > 0.
+    """
+    metas: list[DocumentMetadata] = []
+    failed_count = 0
+    for f in discover_files(path, recursive):
+        meta = extract_metadata(f)
+        if meta:
+            metas.append(meta)
+            if meta.is_corrupt:
+                failed_count += 1
+        else:
+            failed_count += 1
+    error_summary = f"{failed_count} archivos no soportados o con error" if failed_count else ""
+    return (metas, failed_count, error_summary)
 
 def list_files_by_extension(
     path: str | Path,
@@ -119,6 +165,13 @@ def _mime_for_ext(ext: str) -> str:
         ".csv": "text/csv",
         ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ".doc": "application/msword",
+        ".xls": "application/vnd.ms-excel",
+        ".odt": "application/vnd.oasis.opendocument.text",
+        ".ods": "application/vnd.oasis.opendocument.spreadsheet",
+        ".rtf": "application/rtf",
+        ".tex": "application/x-tex",
+        ".bib": "application/x-bibtex",
         ".png": "image/png",
         ".jpg": "image/jpeg",
         ".jpeg": "image/jpeg",
@@ -129,6 +182,8 @@ def _mime_for_ext(ext: str) -> str:
         ".tif": "image/tiff",
         ".heic": "image/heic",
         ".heif": "image/heif",
+        ".svg": "image/svg+xml",
+        ".ico": "image/x-icon",
         ".mov": "video/quicktime",
         ".mp4": "video/mp4",
         ".avi": "video/x-msvideo",
@@ -144,16 +199,48 @@ def _mime_for_ext(ext: str) -> str:
         ".aac": "audio/aac",
         ".ogg": "audio/ogg",
         ".wma": "audio/x-ms-wma",
+        ".opus": "audio/opus",
         ".c": "text/x-c",
         ".h": "text/x-c",
+        ".cpp": "text/x-c++",
+        ".hpp": "text/x-c++",
         ".java": "text/x-java-source",
         ".py": "text/x-python",
+        ".pyw": "text/x-python",
+        ".pyi": "text/x-python",
         ".js": "text/javascript",
         ".ts": "text/typescript",
+        ".jsx": "text/jsx",
+        ".tsx": "text/tsx",
         ".go": "text/x-go",
         ".rs": "text/x-rust",
+        ".rb": "text/x-ruby",
+        ".php": "text/x-php",
+        ".jl": "text/x-julia",
+        ".swift": "text/x-swift",
+        ".kt": "text/x-kotlin",
+        ".scala": "text/x-scala",
+        ".r": "text/x-r",
+        ".R": "text/x-r",
+        ".sql": "application/sql",
         ".sh": "text/x-shellscript",
         ".bat": "application/x-bat",
+        ".cmd": "application/x-bat",
+        ".ps1": "text/x-powershell",
+        ".html": "text/html",
+        ".htm": "text/html",
+        ".xhtml": "application/xhtml+xml",
+        ".xml": "application/xml",
+        ".xsl": "application/xml",
+        ".xslt": "application/xml",
+        ".json": "application/json",
+        ".yaml": "text/yaml",
+        ".yml": "text/yaml",
+        ".toml": "application/toml",
+        ".ini": "text/plain",
+        ".cfg": "text/plain",
+        ".conf": "text/plain",
+        ".vue": "text/x-vue",
         ".exe": "application/octet-stream",
         ".dll": "application/octet-stream",
         ".so": "application/octet-stream",

@@ -13,17 +13,23 @@ from pydantic import BaseModel
 from app.api.deps import get_current_user
 from app.api.path_utils import validate_local_path
 from app.db.models import User
-from wizard404_core.discovery import analyze_directory, list_files_by_extension_with_metadata
+from wizard404_core.discovery import (
+    discover_and_extract_with_summary,
+    list_files_by_extension_with_metadata,
+)
+from wizard404_core.models import DirectoryStats
 
 router = APIRouter(tags=["scan"])
 
 
 class ScanResponse(BaseModel):
-    """Estadísticas de un directorio escaneado (DirectoryStats)."""
+    """Estadísticas de un directorio escaneado (DirectoryStats). Campos opcionales para fallos."""
     total_files: int
     total_size: int
     by_type: dict[str, int]
     by_extension: dict[str, int]
+    failed_count: int = 0
+    error_summary: str = ""
 
 
 class ScanRequest(BaseModel):
@@ -43,12 +49,21 @@ def _scan_path(path: str) -> ScanResponse:
     if not p.is_dir():
         raise HTTPException(status_code=400, detail="Path must be a directory")
     try:
-        stats = analyze_directory(p, recursive=True)
+        metas, failed_count, error_summary = discover_and_extract_with_summary(p, recursive=True)
+        stats = DirectoryStats()
+        for m in metas:
+            stats.total_files += 1
+            stats.total_size += m.size_bytes
+            ext = m.extension
+            stats.by_extension[ext] = stats.by_extension.get(ext, 0) + 1
+            stats.by_type[m.mime_type] = stats.by_type.get(m.mime_type, 0) + 1
         return ScanResponse(
             total_files=stats.total_files,
             total_size=stats.total_size,
             by_type=stats.by_type,
             by_extension=stats.by_extension,
+            failed_count=failed_count,
+            error_summary=error_summary,
         )
     except OSError as e:
         raise HTTPException(status_code=503, detail=f"Scan failed: {e}") from e

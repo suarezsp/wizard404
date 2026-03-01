@@ -15,6 +15,7 @@ from wizard404_cli.tui.common import (
     play_ascii_entrance,
     print_header_after_ascii,
     get_console,
+    show_help_screen,
     MENU_HIGHLIGHT_STYLE,
     STATUS_BAR_STYLE,
     STATUS_MAIN,
@@ -33,6 +34,7 @@ MAIN_OPTIONS = [
     "Explore documents     — Navigate and view content",
     "Organize files        — Move into folders by type/date/size",
     "Cleanup               — Find cache, logs and tiny files",
+    "Help                  — TUI usage instructions",
     "Exit",
 ]
 
@@ -60,7 +62,7 @@ def run() -> None:
             status_bar=STATUS_MAIN,
         )
         idx = menu.show()
-        if idx is None or idx == 6:  # Exit or Escape
+        if idx is None or idx == 7:  # Exit or Escape
             return
         if idx == 0:
             menu_scan.handle_scan()
@@ -74,3 +76,5 @@ def run() -> None:
             menu_organize.handle_organize()
         elif idx == 5:
             menu_cleanup.handle_cleanup()
+        elif idx == 6:
+            show_help_screen()
