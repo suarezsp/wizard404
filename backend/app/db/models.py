@@ -40,5 +40,9 @@ class Document(Base):
     imported_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     content_preview: Mapped[str] = mapped_column(Text, default="")
     content_full: Mapped[str] = mapped_column(Text, default="")
+    author: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    title: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    # Embedding para búsqueda semántica (JSON array de 384 floats; all-MiniLM-L6-v2)
+    embedding: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     owner: Mapped[User | None] = relationship(back_populates="documents")

@@ -33,7 +33,7 @@ export function Dashboard() {
     setLoading(true)
     setSearchError('')
     try {
-      const data = await searchDocuments(token, { q: query })
+      const { results: data } = await searchDocuments(token, { q: query })
       setResults(data)
     } catch (err) {
       setResults([])

@@ -100,6 +100,7 @@ def handle_search_index() -> None:
         console.print("[yellow]Write a search.[/yellow]")
         input("\n  [Enter] Back to menu")
         return
+    use_semantic = input("  Usar busqueda semantica (por significado)? (s/N): ").strip().lower() == "s"
     _, token = get_api_config()
     if not token:
         console.print(f"[{STYLE_ALERT}] {TOKEN_MSG} [/]")
@@ -107,7 +108,7 @@ def handle_search_index() -> None:
         return
     try:
         api_results, err = run_with_loading_long(
-            lambda: search_indexed(query, limit=100),
+            lambda: search_indexed(query, limit=100, semantic=use_semantic),
         )
         if err:
             console.print(f"[{STYLE_ERROR}] {err} [/]")

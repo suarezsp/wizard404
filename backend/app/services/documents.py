@@ -4,6 +4,7 @@ Servicio de documentos.
 Orquesta wizard404_core (extraer y hacer discovery) con la persistencia en PostgreSQL.
 """
 
+import json
 import shutil
 from datetime import datetime
 from pathlib import Path
@@ -18,8 +19,30 @@ from wizard404_core import (
     list_documents,
     search_documents,
     semantic_search_documents,
+    search_by_embeddings,
+    encode_embedding,
+    embedding_from_json,
 )
 from wizard404_core.models import DocumentMetadata, SearchFilters, SearchResult
+
+# Max caracteres para el texto que se embedea (coherente con wizard404_core.embeddings)
+_EMBED_TEXT_MAX_LEN = 8000
+_CONTENT_FULL_PREFIX = 2500
+
+
+def _text_for_embedding(meta: DocumentMetadata) -> str:
+    """
+    Texto rico para calcular el embedding: titulo, nombre, preview y prefijo de content_full.
+    Asi documentos con contenido distinto reciben embeddings diferenciados.
+    """
+    parts = [
+        (meta.title or "").strip(),
+        (meta.name or "").strip(),
+        (meta.content_preview or "").strip(),
+        ((meta.content_full or "")[:_CONTENT_FULL_PREFIX]).strip(),
+    ]
+    combined = " ".join(p for p in parts if p)
+    return combined[:_EMBED_TEXT_MAX_LEN].strip() or meta.name or ""
 
 
 def _doc_to_metadata(doc: Document) -> DocumentMetadata:
@@ -33,6 +56,8 @@ def _doc_to_metadata(doc: Document) -> DocumentMetadata:
         modified_at=doc.modified_at,
         content_preview=doc.content_preview,
         content_full=doc.content_full,
+        author=doc.author,
+        title=doc.title,
     )
 
 
@@ -72,10 +97,22 @@ def import_document(
         modified_at=meta.modified_at,
         content_preview=meta.content_preview,
         content_full=meta.content_full,
+        author=getattr(meta, "author", None),
+        title=getattr(meta, "title", None),
     )
     db.add(doc)
     db.commit()
     db.refresh(doc)
+    # Embedding para búsqueda semántica (texto rico para diferenciar documentos)
+    try:
+        text_for_emb = _text_for_embedding(meta)
+        emb = encode_embedding(text_for_emb) if text_for_emb else None
+        if emb is not None:
+            doc.embedding = json.dumps(emb)
+            db.commit()
+            db.refresh(doc)
+    except Exception:
+        pass
     return doc
 
 
@@ -99,8 +136,13 @@ def search(
     user_id: int,
     filters: SearchFilters,
     semantic: bool = False,
-) -> list[SearchResult]:
-    """Busca documentos del usuario. Si semantic=True usa expansión de consulta para mayor recall."""
+) -> tuple[list[SearchResult], bool]:
+    """
+    Busca documentos del usuario.
+    Si semantic=True y hay query: usa búsqueda por embeddings cuando existan embeddings en DB;
+    si no hay ninguno, fallback a expansión de consulta. Si semantic=False usa búsqueda por términos.
+    Returns: (results, semantic_used). semantic_used=True solo cuando se usaron vectores con query embedeada.
+    """
     docs = (
         db.query(Document)
         .filter(Document.owner_id == user_id)
@@ -108,12 +150,57 @@ def search(
     )
     path_to_id = {d.path: d.id for d in docs}
     metas = [_doc_to_metadata(d) for d in docs]
+
+    if semantic and (filters.query or "").strip():
+        # Documentos con embedding para búsqueda por vectores
+        docs_with_emb = [
+            (_doc_to_metadata(d), embedding_from_json(d.embedding))
+            for d in docs
+            if d.embedding
+        ]
+        docs_with_emb = [(m, e) for m, e in docs_with_emb if e is not None]
+        if docs_with_emb:
+            results, used_vectors = search_by_embeddings(docs_with_emb, filters.query, filters)
+            for r in results:
+                if r.metadata:
+                    r.id = path_to_id.get(r.metadata.path)
+            return (results, used_vectors)
+        # Fallback: ningún documento tiene embedding
     search_fn = semantic_search_documents if semantic else search_documents
     results = search_fn(metas, filters)
     for r in results:
         if r.metadata:
             r.id = path_to_id.get(r.metadata.path)
-    return results
+    return (results, False)
+
+
+def reindex_embeddings(db: Session, user_id: int) -> int:
+    """
+    Recalcula embeddings para todos los documentos del usuario usando _text_for_embedding.
+    Útil cuando los documentos se importaron antes de tener texto rico para embeddings.
+    Returns: número de documentos reindexados (con embedding actualizado).
+    """
+    docs = (
+        db.query(Document)
+        .filter(Document.owner_id == user_id)
+        .all()
+    )
+    reindexed = 0
+    for doc in docs:
+        meta = _doc_to_metadata(doc)
+        text_for_emb = _text_for_embedding(meta)
+        if not text_for_emb:
+            continue
+        try:
+            emb = encode_embedding(text_for_emb)
+            if emb is not None:
+                doc.embedding = json.dumps(emb)
+                db.commit()
+                db.refresh(doc)
+                reindexed += 1
+        except Exception:
+            continue
+    return reindexed
 
 
 def get_document(db: Session, doc_id: int, user_id: int) -> Document | None:

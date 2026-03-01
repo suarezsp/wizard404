@@ -82,13 +82,30 @@ export async function listDocuments(token, params = {}) {
 
 /**
  * Busca en documentos indexados. params: q (texto), semantic (bool), mime_type, min_size, max_size, limit, offset.
- * Devuelve array de resultados con id, name, path, mime_type, size_bytes, snippet.
+ * Devuelve { results, semanticUsed }. results: array con id, name, path, mime_type, size_bytes, snippet.
+ * semanticUsed: true si se ordeno por similitud (vectores); false si fallback (orden por fecha).
  * @param {string} token - Bearer token
  * @param {{ q?: string, semantic?: boolean, limit?: number, offset?: number }} params
  */
 export async function searchDocuments(token, params = {}) {
   const q = new URLSearchParams(params).toString()
   const r = await fetch(`${API_BASE}/documents/search?${q}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  await throwIfNotOk(r)
+  const data = await r.json()
+  const semanticUsed = r.headers.get('X-Semantic-Used') === 'true'
+  return { results: data, semanticUsed }
+}
+
+/**
+ * Reindexa embeddings de todos los documentos del usuario (recalcula vectores con texto rico).
+ * Util si la busqueda semantica no varia con la consulta. Devuelve { reindexed }.
+ * @param {string} token - Bearer token
+ */
+export async function reindexEmbeddings(token) {
+  const r = await fetch(`${API_BASE}/documents/reindex-embeddings`, {
+    method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
   })
   await throwIfNotOk(r)

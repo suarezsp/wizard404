@@ -20,6 +20,8 @@ source venv/bin/activate  # En Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+La búsqueda semántica por embeddings (modelo `all-MiniLM-L6-v2`) usa `sentence-transformers` y `numpy` ya incluidas en `requirements.txt`. Si no están instaladas o fallan, la opción "Búsqueda semántica" sigue funcionando con expansión de consulta (sinónimos/plural). Si la búsqueda semántica no varía con la consulta (siempre los mismos resultados), ejecute **Reindexar embeddings** en la página de búsqueda del frontend o `POST /documents/reindex-embeddings` (con auth) para recalcular los vectores; también puede reimportar los documentos.
+
 Por defecto se usa SQLite (no requiere instalación). Para PostgreSQL:
 
 ```sql
@@ -91,10 +93,10 @@ No ejecutes `pytest backend/tests cli/tests` en una sola invocación desde la ra
 
 ## Good First Issues
 
-- Mejorar mensajes de error en la CLI.
-- Añadir más formatos de documento (ej. ODT).
-- Traducción del README al inglés.
-- Mejoras de accesibilidad en el frontend.
+- Mejorar mensajes de error en la CLI (mensajes mas claros y accionables).
+- Anadir mas formatos de documento (ej. ODT) en wizard404_core/extractors.
+- Mejoras de accesibilidad en el frontend (labels, aria-*, contraste).
+- Anadir docstrings en funciones publicas de la API y del core (docs/architecture.md como referencia).
 
 ## Proceso de contribución
 

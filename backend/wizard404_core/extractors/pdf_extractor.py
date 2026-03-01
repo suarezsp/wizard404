@@ -34,6 +34,8 @@ class PDFExtractor(Extractor):
 
             # Metadatos del documento PDF (autor, título, creador, etc.)
             content_full = content
+            author_val = None
+            title_val = None
             if reader.metadata:
                 meta_lines = ["--- Metadatos PDF ---"]
                 for attr, label in (
@@ -46,6 +48,10 @@ class PDFExtractor(Extractor):
                     val = getattr(reader.metadata, attr, None)
                     if val is not None and str(val).strip():
                         meta_lines.append(f"{label}: {val}")
+                        if attr == "author":
+                            author_val = str(val).strip()
+                        elif attr == "title":
+                            title_val = str(val).strip()
                 if len(meta_lines) > 1:
                     content_full = "\n".join(meta_lines) + "\n\n--- Texto ---\n" + (content or "(sin texto extraíble)")
 
@@ -59,6 +65,8 @@ class PDFExtractor(Extractor):
                 content_preview=preview,
                 content_full=content_full,
                 document_subtype=subtype,
+                author=author_val,
+                title=title_val,
             )
         except Exception:
             stat = path.stat()

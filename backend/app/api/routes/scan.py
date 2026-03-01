@@ -17,6 +17,7 @@ from wizard404_core.discovery import (
     discover_and_extract_with_summary,
     list_files_by_extension_with_metadata,
 )
+from wizard404_core.extractors.image import _suppress_stderr_fd
 from wizard404_core.models import DirectoryStats
 
 router = APIRouter(tags=["scan"])
@@ -49,7 +50,8 @@ def _scan_path(path: str) -> ScanResponse:
     if not p.is_dir():
         raise HTTPException(status_code=400, detail="Path must be a directory")
     try:
-        metas, failed_count, error_summary = discover_and_extract_with_summary(p, recursive=True)
+        with _suppress_stderr_fd():
+            metas, failed_count, error_summary = discover_and_extract_with_summary(p, recursive=True)
         stats = DirectoryStats()
         for m in metas:
             stats.total_files += 1
@@ -107,11 +109,12 @@ def get_scan_files(
     if not ext.startswith("."):
         ext = f".{ext}" if ext else ""
     try:
-        if ext:
-            metas = list_files_by_extension_with_metadata(p, ext, recursive=True)
-        else:
-            from wizard404_core.discovery import discover_and_extract
-            metas = list(discover_and_extract(p, recursive=True))
+        with _suppress_stderr_fd():
+            if ext:
+                metas = list_files_by_extension_with_metadata(p, ext, recursive=True)
+            else:
+                from wizard404_core.discovery import discover_and_extract
+                metas = list(discover_and_extract(p, recursive=True))
     except OSError as e:
         raise HTTPException(status_code=503, detail=f"Scan failed: {e}") from e
     return [

@@ -35,6 +35,8 @@ Documento explicativo por componente para demo, revisión y cierre del proyecto 
 - **Qué es**: Aplicación web para búsqueda y exploración de documentos.
 - **Tecnologías**: React, Vite, TailwindCSS. Consume la API del backend.
 - **Uso**: `npm install` y `npm run dev` en `frontend/`; API en `http://localhost:8000`, frontend en `http://localhost:5173`.
+- **Detalle de documento**: muestra nombre, autor y título (cuando el extractor los aporta, p. ej. PDF), tipo, tamaño, ruta, resumen automático y contenido.
+- **Busqueda**: highlight de los términos de la query en el snippet; orden por fecha, tamaño o nombre; opción de búsqueda semántica.
 
 ---
 

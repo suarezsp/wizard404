@@ -62,11 +62,21 @@ export function DocumentDetail() {
           {doc.name}
         </h1>
         <div className="grid grid-cols-2 gap-4 text-xs mb-6 text-[var(--pixel-text-on-dark)]">
+          {doc.title && (
+            <div className="col-span-2">
+              <span className="text-[var(--pixel-text-muted)]">Titulo:</span> {doc.title}
+            </div>
+          )}
+          {doc.author && (
+            <div className="col-span-2">
+              <span className="text-[var(--pixel-text-muted)]">Autor:</span> {doc.author}
+            </div>
+          )}
           <div>
             <span className="text-[var(--pixel-text-muted)]">Tipo:</span> {doc.mime_type}
           </div>
           <div>
-            <span className="text-[var(--pixel-text-muted)]">Tamaño:</span>{' '}
+            <span className="text-[var(--pixel-text-muted)]">Tamano:</span>{' '}
             {doc.size_bytes?.toLocaleString()} bytes
           </div>
           <div className="col-span-2">

@@ -21,6 +21,13 @@ from wizard404_core.discovery import (
 from wizard404_core.extractors import extract_metadata
 from wizard404_core.search import search_documents, list_documents, apply_filters
 from wizard404_core.semantic import expand_query, semantic_search_documents
+from wizard404_core.embeddings import (
+    encode as encode_embedding,
+    cosine_similarity,
+    embedding_from_json,
+    get_model as get_embedding_model,
+    search_by_embeddings,
+)
 from wizard404_core.summary import summarize_text
 from wizard404_core.summary_scan import get_entropy_message
 
@@ -43,6 +50,11 @@ __all__ = [
     "apply_filters",
     "expand_query",
     "semantic_search_documents",
+    "encode_embedding",
+    "cosine_similarity",
+    "embedding_from_json",
+    "get_embedding_model",
+    "search_by_embeddings",
     "summarize_text",
     "get_entropy_message",
 ]

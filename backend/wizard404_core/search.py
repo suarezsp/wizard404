@@ -16,7 +16,11 @@ def search_documents(
     documents: list[DocumentMetadata],
     filters: SearchFilters,
 ) -> list[SearchResult]:
-    """Filtra y ordena documentos según SearchFilters. Búsqueda por palabras clave en nombre y content_preview; devuelve resultados paginados con snippet y score."""
+    """
+    Filtra y ordena documentos segun SearchFilters.
+    Busqueda por palabras clave en nombre y content_preview; devuelve resultados paginados con snippet y score.
+    Si hay query, ordena por relevancia (score) y luego por fecha; si no, usa filters.order_by y order_desc.
+    """
     filtered = _apply_filters(documents, filters)
     query_stripped = filters.query.strip() if filters.query else ""
     results = []

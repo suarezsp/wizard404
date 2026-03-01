@@ -24,6 +24,8 @@ class DocumentMetadata:
     content_full: str = ""
     is_corrupt: bool = False  # True si no se pudo extraer contenido (archivo movible/listable)
     document_subtype: Optional[str] = None  # e.g. "scan" for image-only PDFs, "encrypted", "corrupt"
+    author: Optional[str] = None  # e.g. from PDF metadata
+    title: Optional[str] = None  # e.g. from PDF metadata
 
     @property
     def extension(self) -> str:

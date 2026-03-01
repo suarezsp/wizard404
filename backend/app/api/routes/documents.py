@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
 
@@ -21,9 +22,11 @@ from app.services.documents import (
     import_document,
     import_directory,
     list_documents_by_owner,
+    reindex_embeddings,
     search,
     assist_from_documents,
 )
+from wizard404_core.extractors.image import _suppress_stderr_fd
 from wizard404_core.models import SearchFilters
 from wizard404_core.summary import summarize_text
 
@@ -41,6 +44,8 @@ class DocumentResponse(BaseModel):
     mime_type: str
     size_bytes: int
     content_preview: str
+    author: str | None = None
+    title: str | None = None
 
 
 class SearchResponse(BaseModel):
@@ -69,7 +74,7 @@ def list_docs(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Lista documentos indexados del usuario con paginacion (limit/offset)."""
+    """Lista documentos indexados del usuario con paginacion (limit/offset). Orden: mas recientes primero (imported_at desc)."""
     limit = min(max(1, limit), settings.max_list_limit)
     offset = max(0, offset)
     docs = list_documents_by_owner(db, current_user.id, limit=limit, offset=offset)
@@ -86,19 +91,21 @@ def list_docs(
     ]
 
 
-@router.get("/search", response_model=list[SearchResponse])
+@router.get("/search")
 def search_docs(
     q: Annotated[str, Query(description="Keywords to search")] = "",
     semantic: bool = False,
     mime_type: str | None = None,
     min_size: int | None = None,
     max_size: int | None = None,
+    order_by: str = "modified_at",
+    order_desc: bool = True,
     limit: int = 50,
     offset: int = 0,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Busca en documentos indexados del usuario. q vacio devuelve lista vacia. semantic=true usa expansion de consulta."""
+    """Busca en documentos indexados del usuario. q vacio devuelve lista vacia. semantic=true usa expansion de consulta o vectores. Header X-Semantic-Used indica si se ordeno por similitud."""
     limit = min(max(1, limit), settings.max_search_limit)
     offset = max(0, offset)
     filters = SearchFilters(
@@ -106,21 +113,37 @@ def search_docs(
         mime_type=mime_type,
         min_size=min_size,
         max_size=max_size,
+        order_by=order_by,
+        order_desc=order_desc,
         limit=limit,
         offset=offset,
     )
-    results = search(db, current_user.id, filters, semantic=semantic)
-    return [
-        SearchResponse(
-            id=r.id,
-            name=r.metadata.name if r.metadata else "",
-            path=r.metadata.path if r.metadata else "",
-            mime_type=r.metadata.mime_type if r.metadata else "",
-            size_bytes=r.metadata.size_bytes if r.metadata else 0,
-            snippet=r.snippet,
-        )
+    results, semantic_used = search(db, current_user.id, filters, semantic=semantic)
+    body = [
+        {
+            "id": r.id,
+            "name": r.metadata.name if r.metadata else "",
+            "path": r.metadata.path if r.metadata else "",
+            "mime_type": r.metadata.mime_type if r.metadata else "",
+            "size_bytes": r.metadata.size_bytes if r.metadata else 0,
+            "snippet": r.snippet,
+        }
         for r in results if r.metadata
     ]
+    return JSONResponse(
+        content=body,
+        headers={"X-Semantic-Used": "true" if semantic_used else "false"},
+    )
+
+
+@router.post("/reindex-embeddings")
+def reindex_embeddings_endpoint(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Recalcula embeddings para todos los documentos del usuario. Util si la busqueda semantica no varia con la consulta (documentos importados antes del texto rico)."""
+    n = reindex_embeddings(db, current_user.id)
+    return {"reindexed": n}
 
 
 @router.get("/{doc_id}/summary")
@@ -155,6 +178,8 @@ def get_doc(
         mime_type=doc.mime_type,
         size_bytes=doc.size_bytes,
         content_preview=doc.content_preview,
+        author=doc.author,
+        title=doc.title,
     )
 
 @router.post("/import")
@@ -172,10 +197,12 @@ def import_path(
                     status_code=400,
                     detail=f"File too large (max {settings.max_import_file_bytes // (1024*1024)} MB)",
                 )
-            doc = import_document(p, current_user.id, db)
+            with _suppress_stderr_fd():
+                doc = import_document(p, current_user.id, db)
             return {"imported": 1, "document_id": doc.id}
         if p.is_dir():
-            docs = import_directory(p, current_user.id, db)
+            with _suppress_stderr_fd():
+                docs = import_directory(p, current_user.id, db)
             return {"imported": len(docs), "document_ids": [d.id for d in docs]}
         raise HTTPException(status_code=400, detail="Invalid path")
     except FileNotFoundError as e:
@@ -214,7 +241,8 @@ def upload_documents(
                 tmp.write(content)
                 tmp_path = Path(tmp.name)
             try:
-                doc = import_document(tmp_path, current_user.id, db)
+                with _suppress_stderr_fd():
+                    doc = import_document(tmp_path, current_user.id, db)
                 imported_ids.append(doc.id)
             finally:
                 tmp_path.unlink(missing_ok=True)

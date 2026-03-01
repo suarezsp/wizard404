@@ -5,14 +5,15 @@ Carga estandar: barra de progreso (izquierda a derecha) basada en tiempo, ya que
 workers no reportan progreso real (KISS). Operaciones largas: barra hasta 90 %% en 20 s,
 luego 100 %% al terminar; opcional mensaje typewriter al final.
 Operaciones cortas: solo "Working on it...".
-Durante el worker se redirige stderr para no mostrar mensajes de librerias (p. ej. pypdf).
+Durante el worker se redirige stderr (Python) y fd 2 (C, p. ej. libtiff "Ignoring wrong pointing object").
 """
 
 import io
+import os
 import sys
 import time
 import threading
-from contextlib import redirect_stderr
+from contextlib import contextmanager, redirect_stderr
 from typing import Any, Callable, TypeVar
 
 from rich.console import Console
@@ -60,6 +61,36 @@ SCAN_DONE_PAUSE_SECONDS = 1.0
 T = TypeVar("T")
 
 
+@contextmanager
+def _suppress_stderr_fd():
+    """Redirige fd 2 (stderr) a devnull para suprimir salida de librerias C (p. ej. libtiff 'Ignoring wrong pointing object') durante operaciones largas."""
+    stderr_fd = 2
+    try:
+        saved_fd = os.dup(stderr_fd)
+    except OSError:
+        yield
+        return
+    devnull = None
+    try:
+        devnull = open(os.devnull, "w")
+        os.dup2(devnull.fileno(), stderr_fd)
+        yield
+    finally:
+        try:
+            os.dup2(saved_fd, stderr_fd)
+        except OSError:
+            pass
+        try:
+            os.close(saved_fd)
+        except OSError:
+            pass
+        if devnull is not None:
+            try:
+                devnull.close()
+            except OSError:
+                pass
+
+
 def _terminal_columns() -> int:
     """Columnas del terminal; 80 si no disponible."""
     try:
@@ -96,10 +127,11 @@ def run_with_loading_short(
     *args: Any,
     **kwargs: Any,
 ) -> T:
-    """Ejecuta worker mostrando 'Working on it...' (centrado) y devuelve el resultado. stderr suprimido durante el worker."""
+    """Ejecuta worker mostrando 'Working on it...' (centrado) y devuelve el resultado. stderr y fd 2 suprimidos durante el worker."""
     _print_centered(LOADING_PHRASE_SHORT, style="cyan")
-    with redirect_stderr(io.StringIO()):
-        return worker(*args, **kwargs)
+    with _suppress_stderr_fd():
+        with redirect_stderr(io.StringIO()):
+            return worker(*args, **kwargs)
 
 
 def run_with_loading_long(
@@ -113,8 +145,9 @@ def run_with_loading_long(
 
     def run_worker() -> None:
         try:
-            with redirect_stderr(io.StringIO()):
-                result_container.append(worker(*args, **kwargs))
+            with _suppress_stderr_fd():
+                with redirect_stderr(io.StringIO()):
+                    result_container.append(worker(*args, **kwargs))
         except BaseException as e:
             exc_container.append(e)
 
@@ -168,8 +201,9 @@ def run_with_loading_scan(
 
     def run_worker() -> None:
         try:
-            with redirect_stderr(io.StringIO()):
-                result_container.append(worker(*args, **kwargs))
+            with _suppress_stderr_fd():
+                with redirect_stderr(io.StringIO()):
+                    result_container.append(worker(*args, **kwargs))
         except BaseException as e:
             exc_container.append(e)
 
@@ -224,8 +258,9 @@ def run_with_import_loading(
 
     def run_worker() -> None:
         try:
-            with redirect_stderr(io.StringIO()):
-                result_container.append(worker(*args, **kwargs))
+            with _suppress_stderr_fd():
+                with redirect_stderr(io.StringIO()):
+                    result_container.append(worker(*args, **kwargs))
         except BaseException as e:
             exc_container.append(e)
 
