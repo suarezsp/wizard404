@@ -16,9 +16,12 @@ console = Console()
 
 
 def index_cmd(
-    path: str = typer.Argument(..., help="File or directory to index"),
+    path: str = typer.Argument(
+        ...,
+        help="File or directory to index. The path must exist on the machine where the backend runs.",
+    ),
 ):
-    """Indexa documentos en la API (archivo o directorio). Requiere backend corriendo y token configurado."""
+    """Indexa documentos en la API (archivo o directorio). Requiere backend corriendo y token configurado. La ruta debe existir en la máquina donde corre el backend."""
     p = Path(path).resolve()
     if not p.exists():
         console.print(f"[red]Path does not exist: {path}[/red]")
@@ -26,6 +29,7 @@ def index_cmd(
     base_url, token = get_api_config()
     if not token:
         console.print("[yellow]No token. Run w404 start once to auto-configure, or set W404_TOKEN.[/yellow]")
+        console.print("[dim]El comando 'index' envía la ruta al backend; esa ruta debe ser accesible por el servidor (misma máquina o path montado).[/dim]")
         raise typer.Exit(1)
     count, err = import_to_index(str(p))
     if err:

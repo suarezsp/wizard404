@@ -1,6 +1,6 @@
 """
 Menu Search: buscar en directorio o en el indice; ver documentos indexados.
-handle_index_view = redirige a la web (Explore); handle_search_index = buscar en indice; handle_search = submenu.
+handle_index_view = lista documentos indexados (API) y detalle en terminal; handle_search_index = buscar en indice; handle_search = submenu.
 """
 
 from rich.table import Table
@@ -8,7 +8,7 @@ from rich.prompt import Prompt
 from simple_term_menu import TerminalMenu
 
 from wizard404_cli.commands import search_cmd
-from wizard404_cli.api_client import get_api_config, search_indexed, TOKEN_MSG
+from wizard404_cli.api_client import get_api_config, list_indexed, search_indexed, TOKEN_MSG
 from wizard404_cli.tui import common as tui_common
 from wizard404_cli.tui.common import (
     pick_directory_tree,
@@ -126,14 +126,33 @@ def handle_search_index() -> None:
 
 
 def handle_index_view() -> None:
-    """Redirige al usuario a la interfaz web para ver y gestionar documentos indexados."""
+    """Lista documentos indexados desde la API y permite ver el detalle de cada uno en terminal."""
     console = tui_common.get_console()
     explore_url = f"{FRONTEND_BASE_URL.rstrip('/')}/explore"
-    console.print("[bold]Documentos indexados[/bold]")
-    console.print("Para ver y gestionar el indice de documentos, usa la interfaz web (Explore).")
-    console.print(f"  [cyan]{explore_url}[/cyan]")
-    console.print("[dim]Desde ahi puedes listar, buscar e importar archivos.[/dim]")
-    input("\n  [Enter] Back to menu")
+    _, token = get_api_config()
+    if not token:
+        console.print(f"[{STYLE_ALERT}] {TOKEN_MSG} [/]")
+        input("\n  [Enter] Back to menu")
+        return
+    try:
+        results, err = run_with_loading_long(lambda: list_indexed(limit=200))
+        if err:
+            console.print(f"[{STYLE_ERROR}] {err} [/]")
+            input("\n  [Enter] Back to menu")
+            return
+        if not results:
+            console.print("[bold]Documentos indexados[/bold]")
+            console.print("[yellow]No hay documentos en el índice.[/yellow]")
+            console.print("[dim]Use w404 index <ruta> o la opción Index del menú para añadir documentos.[/dim]")
+            console.print(f"[dim]También puedes usar la interfaz web: {explore_url}[/dim]")
+            input("\n  [Enter] Back to menu")
+            return
+        run_list_detail_loop(results, "Documentos indexados", count_label="documento(s)")
+        console.print(f"[dim]También puedes usar la interfaz web: {explore_url}[/dim]")
+        input("\n  [Enter] Back to menu")
+    except Exception as e:
+        console.print(f"[{STYLE_ERROR}] Error inesperado: {e} [/]")
+        input("\n  [Enter] Back to menu")
 
 
 def handle_search() -> None:

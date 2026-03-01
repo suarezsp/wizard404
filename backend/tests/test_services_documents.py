@@ -175,3 +175,21 @@ def test_reindex_embeddings(db: Session, admin_user: User, sample_txt_file: Path
         assert n >= 0
     finally:
         settings.documents_storage_path = original_storage
+
+
+def test_import_document_cleans_dirty_text(db: Session, admin_user: User, tmp_path: Path):
+    """Importar un archivo con texto sucio (múltiples espacios, \\r\\n) persiste contenido normalizado."""
+    dirty_txt = tmp_path / "dirty.txt"
+    dirty_content = "  word1   \t\t  word2  \r\n  word3  \r  word4  "
+    dirty_txt.write_text(dirty_content, encoding="utf-8")
+    original_storage = settings.documents_storage_path
+    try:
+        settings.documents_storage_path = tmp_path / "storage"
+        doc = import_document(dirty_txt, admin_user.id, db)
+        assert doc.id is not None
+        # Limpieza: espacios colapsados, \\r\\n y \\r -> \\n; sin dobles espacios ni \\r
+        assert "\r" not in (doc.content_full or "")
+        assert doc.content_full == "word1 word2\nword3\nword4"
+        assert doc.content_preview == "word1 word2\nword3\nword4"
+    finally:
+        settings.documents_storage_path = original_storage

@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.db.models import Document, User
 from wizard404_core import (
+    clean_metadata_text,
     discover_and_extract,
     extract_metadata,
     list_documents,
@@ -61,30 +62,28 @@ def _doc_to_metadata(doc: Document) -> DocumentMetadata:
     )
 
 
-def import_document(
-    source_path: str | Path,
+def _persist_document_from_metadata(
+    meta: DocumentMetadata,
     user_id: int,
     db: Session,
+    *,
+    source_path: Path,
 ) -> Document:
     """
-    Importa un documento: copia al storage, extrae metadatos y persiste en DB.
-    Raises: FileNotFoundError si el archivo no existe; ValueError si el formato no es soportado o el archivo excede el tamaño máximo.
+    Persiste un documento a partir de metadata ya extraída: aplica limpieza de texto,
+    copia el archivo al storage y crea el Document en DB (con embedding si aplica).
+    No exponer fuera del módulo; usado por import_document e import_directory.
     """
-    source = Path(source_path).resolve()
-    if not source.exists() or not source.is_file():
-        raise FileNotFoundError(f"File not found: {source}")
+    meta = clean_metadata_text(meta)
     max_bytes = getattr(settings, "max_import_file_bytes", 50 * 1024 * 1024)
-    if source.stat().st_size > max_bytes:
+    if source_path.stat().st_size > max_bytes:
         raise ValueError(f"File too large (max {max_bytes // (1024*1024)} MB)")
-    meta = extract_metadata(source)
-    if not meta:
-        raise ValueError(f"Unsupported format: {source.suffix}")
     storage = settings.documents_storage_path
     storage.mkdir(parents=True, exist_ok=True)
-    dest_name = f"{source.stem}_{source.stat().st_mtime:.0f}{source.suffix}"
+    dest_name = f"{source_path.stem}_{source_path.stat().st_mtime:.0f}{source_path.suffix}"
     dest = storage / dest_name
     try:
-        shutil.copy2(source, dest)
+        shutil.copy2(source_path, dest)
     except OSError as e:
         raise OSError(f"Failed to copy file to storage: {e}") from e
     doc = Document(
@@ -103,7 +102,6 @@ def import_document(
     db.add(doc)
     db.commit()
     db.refresh(doc)
-    # Embedding para búsqueda semántica (texto rico para diferenciar documentos)
     try:
         text_for_emb = _text_for_embedding(meta)
         emb = encode_embedding(text_for_emb) if text_for_emb else None
@@ -116,16 +114,36 @@ def import_document(
     return doc
 
 
+def import_document(
+    source_path: str | Path,
+    user_id: int,
+    db: Session,
+) -> Document:
+    """
+    Importa un documento: copia al storage, extrae metadatos y persiste en DB.
+    Raises: FileNotFoundError si el archivo no existe; ValueError si el formato no es soportado o el archivo excede el tamaño máximo.
+    """
+    source = Path(source_path).resolve()
+    if not source.exists() or not source.is_file():
+        raise FileNotFoundError(f"File not found: {source}")
+    meta = extract_metadata(source)
+    if not meta:
+        raise ValueError(f"Unsupported format: {source.suffix}")
+    return _persist_document_from_metadata(meta, user_id, db, source_path=source)
+
+
 def import_directory(
     source_path: str | Path,
     user_id: int,
     db: Session,
 ) -> list[Document]:
-    """Importa todos los documentos soportados de un directorio. Ignora archivos no soportados o inaccesibles."""
+    """Importa todos los documentos soportados de un directorio. Ignora archivos no soportados o inaccesibles. Sin doble extracción: reutiliza metadata de discover_and_extract."""
     imported = []
     for meta in discover_and_extract(source_path):
         try:
-            doc = import_document(meta.path, user_id, db)
+            doc = _persist_document_from_metadata(
+                meta, user_id, db, source_path=Path(meta.path)
+            )
             imported.append(doc)
         except (ValueError, FileNotFoundError, OSError):
             continue

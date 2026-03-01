@@ -136,11 +136,14 @@ Direct commands:
 
 ```bash
 ./w404 scan .
-./w404 import docs/
+./w404 import docs/     # lists documents in path (does not persist to index)
+./w404 index docs/      # persists path to backend index (path must exist on server)
 ./w404 search contrato --path docs/
 ./w404 organize /path -d ~/Desktop/Organized --by type
 ./w404 cleanup /path --dry-run
 ```
+
+**Note:** `import` only lists documents in the given path; `index` sends the path to the backend and persists files to the index (the path must be accessible by the server).
 
 ### 4. Web (backend + frontend)
 

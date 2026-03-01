@@ -85,7 +85,7 @@ def run_import(path: str, recursive: bool = True) -> bool:
             console.print(f"  {meta.name} ({meta.mime_type}, {meta.size_bytes} bytes)")
             count += 1
     console.print(f"[green]Total: {count} document(s)[/green]")
-    console.print("[dim]To persist in the API, use the POST /documents/import endpoint[/dim] :D")
+    console.print("[dim]Para guardar estos documentos en el índice del backend use: w404 index <ruta> (la ruta debe ser accesible por el servidor donde corre la API).[/dim]")
     return True
 
 

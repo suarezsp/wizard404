@@ -36,6 +36,7 @@ def handle_import() -> None:
         if by_ext:
             summary = " | ".join(f"{ext}: {n}" for ext, n in sorted(by_ext.items()))
             console.print(summary, style="cyan")
+            console.print("[dim]Para guardar estos documentos en el índice, use la opción 'Index' del menú (o w404 index <ruta>) con el backend corriendo.[/dim]")
         else:
             console.print("[yellow]No documents found or the path is invalid.[/yellow]")
     except Exception as e:

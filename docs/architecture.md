@@ -75,6 +75,7 @@ Wizard404 es un monorepo organizado por capas funcionales. Varios clientes (fron
 - **search.py**: recibe listas de `DocumentMetadata` y `SearchFilters`; filtrado, snippet, score y paginación.
 - **semantic.py**: `expand_query`, `semantic_search_documents`; reutiliza lógica de filtrado y ordenación del search.
 - **summary.py**: `summarize_text` (extractivo); usado por la API de resumen y por assist.
+- **text_cleanup.py**: `clean_extracted_text` (normaliza espacios y saltos de línea) y `clean_metadata_text` (aplica limpieza a `content_preview` y `content_full` de un `DocumentMetadata`). Se aplica **en el servicio** al importar, no en cada extractor; así la búsqueda y los embeddings trabajan con texto normalizado (recomendación del material de diseño: un indexador no rinde bien con texto sucio).
 - **summary_scan.py**: utilidades como `get_entropy_message` (entropía).
 
 La capa `app` traduce entre modelos de DB (`Document`) y modelos del core (`DocumentMetadata`) en el servicio de documentos.
@@ -88,7 +89,7 @@ La capa `app` traduce entre modelos de DB (`Document`) y modelos del core (`Docu
 | `GET /documents/search` | Servicio obtiene `Document` del usuario desde DB, convierte a `DocumentMetadata`, llama a `wizard404_core.search.search_documents` o `wizard404_core.semantic.semantic_search_documents`, asigna id por path; devuelve resultados. |
 | `GET /documents/{id}` | Servicio `get_document(db, doc_id, user_id)` → solo DB. |
 | `GET /documents/{id}/summary` | Servicio `get_document` (DB) + `wizard404_core.summary.summarize_text(content)`. |
-| `POST /documents/import` | `path_utils.validate_local_path`; si es archivo: `import_document(path, user_id, db)`; si es directorio: `import_directory` (itera `discover_and_extract`, por cada metadata llama `import_document`). `import_document`: `extract_metadata` (core), copia a storage, persiste `Document` en DB. |
+| `POST /documents/import` | `path_utils.validate_local_path`; si es archivo: `import_document(path, user_id, db)`; si es directorio: `import_directory` (itera `discover_and_extract`, por cada metadata llama a la misma lógica de persistencia sin volver a extraer). `import_document`: `extract_metadata` (core), **normalización de texto** (`wizard404_core.text_cleanup.clean_metadata_text`), copia a storage, persiste `Document` en DB, opcionalmente embedding. |
 | `POST /documents/upload` | Por cada archivo subido: fichero temporal → mismo flujo que `import_document` (core + storage + DB). |
 | `POST /documents/assist` | Servicio `assist_from_documents`: obtiene documentos por id (DB), concatena contenido, usa `summarize_text` (core), devuelve sugerencias por placeholder. |
 | `GET /scan`, `POST /scan` | `validate_local_path` → `wizard404_core.discovery.analyze_directory(path)` → devuelve `DirectoryStats`. No escribe en DB. |

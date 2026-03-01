@@ -30,6 +30,7 @@ from wizard404_core.embeddings import (
 )
 from wizard404_core.summary import summarize_text
 from wizard404_core.summary_scan import get_entropy_message
+from wizard404_core.text_cleanup import clean_extracted_text, clean_metadata_text
 
 __all__ = [
     "DocumentMetadata",
@@ -57,4 +58,6 @@ __all__ = [
     "search_by_embeddings",
     "summarize_text",
     "get_entropy_message",
+    "clean_extracted_text",
+    "clean_metadata_text",
 ]
